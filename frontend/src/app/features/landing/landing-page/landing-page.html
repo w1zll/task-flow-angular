@@ -1,7 +1,60 @@
 <main class="landing">
-  <p class="landing__eyebrow">TaskFlow</p>
-  <h1 class="landing__title">Angular foundation is ready</h1>
-  <p class="landing__description">
-    The product interface will be added in the next development stages.
-  </p>
+  <section class="hero">
+    <div class="hero__copy">
+      <p class="hero__eyebrow">{{ 'landing.eyebrow' | transloco }}</p>
+      <h1 class="hero__title">{{ 'landing.title' | transloco }}</h1>
+      <p class="hero__description">
+        {{ 'landing.description' | transloco }}
+      </p>
+
+      <div class="hero__actions">
+        <a class="hero__action hero__action--primary" routerLink="/auth/register">
+          {{ 'landing.start' | transloco }}
+        </a>
+        <a class="hero__action" routerLink="/auth/login">
+          {{ 'landing.signIn' | transloco }}
+        </a>
+      </div>
+    </div>
+
+    <div class="board-preview" aria-hidden="true">
+      <div class="board-preview__header">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div class="board-preview__columns">
+        @for (column of [0, 1, 2]; track column) {
+          <div class="preview-column">
+            <span class="preview-column__title"></span>
+            @for (card of [0, 1]; track card) {
+              <div class="preview-card">
+                <span class="preview-card__label"></span>
+                <span class="preview-card__line"></span>
+                <span class="preview-card__line preview-card__line--short"></span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="features" [attr.aria-label]="'landing.featuresLabel' | transloco">
+    <article class="feature-card">
+      <span class="feature-card__number">01</span>
+      <h2>{{ 'landing.features.spacesTitle' | transloco }}</h2>
+      <p>{{ 'landing.features.spacesDescription' | transloco }}</p>
+    </article>
+    <article class="feature-card">
+      <span class="feature-card__number">02</span>
+      <h2>{{ 'landing.features.rolesTitle' | transloco }}</h2>
+      <p>{{ 'landing.features.rolesDescription' | transloco }}</p>
+    </article>
+    <article class="feature-card">
+      <span class="feature-card__number">03</span>
+      <h2>{{ 'landing.features.syncTitle' | transloco }}</h2>
+      <p>{{ 'landing.features.syncDescription' | transloco }}</p>
+    </article>
+  </section>
 </main>

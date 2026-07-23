@@ -1,0 +1,82 @@
+@reference "#app.css";
+
+.header {
+  @apply sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur;
+}
+
+.header__inner {
+  @apply mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-3 px-4 py-2 sm:px-6;
+}
+
+.brand {
+  @apply flex shrink-0 items-center gap-2 text-lg font-bold tracking-tight text-foreground no-underline;
+}
+
+.brand__mark {
+  @apply grid size-9 place-items-center rounded-control bg-primary text-white shadow-sm;
+}
+
+.brand__mark svg {
+  @apply size-6 fill-none stroke-current stroke-[2.4];
+}
+
+.header__actions {
+  @apply flex min-w-0 items-center justify-end gap-2;
+}
+
+.auth-nav,
+.preferences {
+  @apply flex items-center gap-1.5;
+}
+
+.auth-link {
+  @apply inline-flex min-h-11 items-center justify-center rounded-control px-3 text-sm font-semibold text-foreground no-underline transition-colors hover:bg-surface-muted;
+}
+
+.auth-link--primary {
+  @apply bg-primary text-white hover:bg-primary-hover;
+}
+
+.preference__select {
+  @apply min-h-11 cursor-pointer rounded-control border border-border bg-surface px-2 text-sm font-semibold text-foreground transition-colors hover:bg-surface-muted;
+}
+
+.preference__select--theme {
+  @apply max-w-28;
+}
+
+.sr-only {
+  @apply sr-only;
+}
+
+@media (max-width: 639px) {
+  .header__inner {
+    @apply flex-wrap;
+  }
+
+  .header__actions {
+    @apply order-2 w-full justify-between;
+  }
+
+  .auth-link {
+    @apply px-2.5;
+  }
+}
+
+@media (max-width: 389px) {
+  .header__actions {
+    @apply items-stretch;
+  }
+
+  .auth-nav {
+    @apply gap-0.5;
+  }
+
+  .preferences {
+    @apply gap-1;
+  }
+
+  .preference__select--theme {
+    @apply max-w-24;
+  }
+}

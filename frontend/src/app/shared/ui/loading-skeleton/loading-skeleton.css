@@ -1,0 +1,13 @@
+@reference "#app.css";
+
+.skeleton {
+  @apply flex animate-pulse flex-col gap-3;
+}
+
+.skeleton__line {
+  @apply block h-4 rounded bg-surface-muted;
+}
+
+.skeleton__line:last-child {
+  @apply w-2/3;
+}

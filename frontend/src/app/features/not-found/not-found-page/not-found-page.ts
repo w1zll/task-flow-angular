@@ -3,10 +3,10 @@ import { RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 @Component({
-  selector: 'app-landing-page',
+  selector: 'app-not-found-page',
   imports: [RouterLink, TranslocoPipe],
-  templateUrl: './landing-page.html',
-  styleUrl: './landing-page.css',
+  templateUrl: './not-found-page.html',
+  styleUrl: './not-found-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LandingPage {}
+export class NotFoundPage {}

@@ -1,5 +1,17 @@
 @reference "#app.css";
 
 :host {
-  @apply block min-h-dvh;
+  @apply block min-h-dvh bg-canvas text-foreground;
+}
+
+.skip-link {
+  @apply fixed left-4 top-3 z-50 -translate-y-20 rounded-control bg-primary px-4 py-3 font-semibold text-white shadow-card transition-transform;
+}
+
+.skip-link:focus {
+  @apply translate-y-0;
+}
+
+.app-content {
+  @apply min-h-[calc(100dvh-4rem)];
 }

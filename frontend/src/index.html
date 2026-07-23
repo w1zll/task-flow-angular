@@ -1,11 +1,49 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru" data-theme="light">
   <head>
     <meta charset="utf-8" />
-    <title>TaskFlowAngular</title>
+    <title>TaskFlow - управление задачами</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="TaskFlow - пространства, доски и задачи без лишней сложности."
+    />
+    <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#202124" media="(prefers-color-scheme: dark)" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <script>
+      (() => {
+        const themeKey = 'taskflow.theme';
+        const languageKey = 'taskflow.language';
+
+        try {
+          const storedTheme = localStorage.getItem(themeKey);
+          const mode =
+            storedTheme === 'light' || storedTheme === 'dark' || storedTheme === 'system'
+              ? storedTheme
+              : 'system';
+          const resolvedTheme =
+            mode === 'system'
+              ? matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light'
+              : mode;
+          const storedLanguage = localStorage.getItem(languageKey);
+          const language =
+            storedLanguage === 'ru' || storedLanguage === 'en'
+              ? storedLanguage
+              : navigator.language.toLowerCase().startsWith('ru')
+                ? 'ru'
+                : 'en';
+
+          document.documentElement.dataset['theme'] = resolvedTheme;
+          document.documentElement.style.colorScheme = resolvedTheme;
+          document.documentElement.lang = language;
+        } catch {
+        }
+      })();
+    </script>
   </head>
   <body>
     <app-root></app-root>

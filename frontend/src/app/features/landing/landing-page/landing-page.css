@@ -1,17 +1,131 @@
 @reference "#app.css";
 
 .landing {
-  @apply mx-auto flex min-h-dvh max-w-3xl flex-col justify-center px-6 py-16;
+  @apply mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-20 lg:py-24;
 }
 
-.landing__eyebrow {
-  @apply mb-3 text-sm font-semibold uppercase tracking-widest text-emerald-700;
+.hero {
+  @apply grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(28rem,0.9fr)];
 }
 
-.landing__title {
-  @apply text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl;
+.hero__copy {
+  @apply max-w-2xl;
 }
 
-.landing__description {
-  @apply mt-5 max-w-xl text-base leading-7 text-slate-600;
+.hero__eyebrow {
+  @apply mb-5 inline-flex rounded-full bg-primary-soft px-3 py-1.5 text-sm font-bold text-primary;
+}
+
+.hero__title {
+  @apply text-4xl font-bold tracking-[-0.035em] text-foreground sm:text-5xl lg:text-6xl;
+}
+
+.hero__description {
+  @apply mt-6 max-w-xl text-base leading-7 text-muted sm:text-lg sm:leading-8;
+}
+
+.hero__actions {
+  @apply mt-8 flex flex-wrap gap-3;
+}
+
+.hero__action {
+  @apply inline-flex min-h-12 items-center justify-center rounded-control border border-border bg-surface px-5 font-semibold text-foreground no-underline transition-all hover:-translate-y-0.5 hover:bg-surface-muted;
+}
+
+.hero__action--primary {
+  @apply border-primary bg-primary text-white shadow-card hover:bg-primary-hover;
+}
+
+.board-preview {
+  @apply relative overflow-hidden rounded-xl border border-border bg-surface p-4 shadow-card;
+  transform: rotate(1.5deg);
+}
+
+.board-preview::before {
+  content: '';
+  @apply pointer-events-none absolute -right-20 -top-20 size-56 rounded-full bg-primary-soft blur-3xl;
+}
+
+.board-preview__header {
+  @apply relative mb-4 flex gap-1.5 border-b border-border pb-3;
+}
+
+.board-preview__header span {
+  @apply size-2.5 rounded-full bg-border;
+}
+
+.board-preview__columns {
+  @apply relative grid grid-cols-3 gap-3;
+}
+
+.preview-column {
+  @apply min-w-0 rounded-control bg-surface-muted p-2.5;
+}
+
+.preview-column__title,
+.preview-card__line {
+  @apply block h-2 rounded-full bg-border;
+}
+
+.preview-column__title {
+  @apply mb-3 w-3/5;
+}
+
+.preview-card {
+  @apply mb-2 rounded-md border border-border bg-surface p-2.5 last:mb-0;
+}
+
+.preview-card__label {
+  @apply mb-2 block h-1.5 w-8 rounded-full bg-primary;
+}
+
+.preview-card__line {
+  @apply mb-1.5 bg-muted/25;
+}
+
+.preview-card__line--short {
+  @apply mb-0 w-2/3;
+}
+
+.features {
+  @apply mt-16 grid gap-4 md:grid-cols-3 sm:mt-24;
+}
+
+.feature-card {
+  @apply rounded-control border border-border bg-surface p-6 shadow-sm;
+}
+
+.feature-card__number {
+  @apply text-xs font-bold tracking-widest text-primary;
+}
+
+.feature-card h2 {
+  @apply mt-4 text-lg font-semibold text-foreground;
+}
+
+.feature-card p {
+  @apply mt-2 text-sm leading-6 text-muted;
+}
+
+@media (max-width: 639px) {
+  .board-preview {
+    @apply p-3;
+    transform: none;
+  }
+
+  .board-preview__columns {
+    @apply gap-2;
+  }
+
+  .preview-column {
+    @apply p-2;
+  }
+
+  .preview-column:nth-child(3) {
+    @apply hidden;
+  }
+
+  .board-preview__columns {
+    @apply grid-cols-2;
+  }
 }

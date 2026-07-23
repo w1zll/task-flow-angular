@@ -1,0 +1,51 @@
+{
+  "a11y": {
+    "skipToContent": "Skip to content"
+  },
+  "header": {
+    "authNavigation": "Authentication",
+    "login": "Sign in",
+    "register": "Register",
+    "language": "Interface language",
+    "theme": "Interface theme"
+  },
+  "theme": {
+    "system": "System",
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "landing": {
+    "eyebrow": "Tasks in a clear flow",
+    "title": "Organize teamwork without unnecessary complexity",
+    "description": "Workspaces, boards, and tasks with roles, invitations, and real-time synchronization.",
+    "start": "Get started",
+    "signIn": "I have an account",
+    "featuresLabel": "TaskFlow features",
+    "features": {
+      "spacesTitle": "Workspaces and boards",
+      "spacesDescription": "Separate projects and keep the work structure easy to understand.",
+      "rolesTitle": "Access control",
+      "rolesDescription": "Assign workspace and board roles without complicated configuration.",
+      "syncTitle": "Live updates",
+      "syncDescription": "Follow task changes across multiple open windows."
+    }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The link may be outdated or the address may contain a typo.",
+    "home": "Return home"
+  },
+  "backend": {
+    "startingTitle": "Starting the TaskFlow server",
+    "startingDescription": "The backend is waking up. This usually takes up to 30 seconds, and loading will continue automatically.",
+    "unavailableTitle": "The server is unavailable",
+    "unavailableDescription": "The server did not respond in time. Check your connection and try again."
+  },
+  "actions": {
+    "close": "Close",
+    "retry": "Retry"
+  },
+  "toast": {
+    "regionLabel": "System messages"
+  }
+}

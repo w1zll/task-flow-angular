@@ -1,0 +1,27 @@
+@reference "#app.css";
+
+.error {
+  @apply flex items-center gap-4 rounded-control border border-danger bg-surface p-5;
+}
+
+.error__mark {
+  @apply grid size-10 shrink-0 place-items-center rounded-full bg-danger font-bold text-white;
+}
+
+.error__copy {
+  @apply min-w-0 flex-1;
+}
+
+.error__title {
+  @apply font-semibold text-foreground;
+}
+
+.error__description {
+  @apply mt-1 text-sm leading-6 text-muted;
+}
+
+@media (max-width: 639px) {
+  .error {
+    @apply flex-wrap;
+  }
+}

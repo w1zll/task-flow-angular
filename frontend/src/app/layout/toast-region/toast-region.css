@@ -1,0 +1,25 @@
+@reference "#app.css";
+
+.toast-region {
+  @apply pointer-events-none fixed inset-x-4 bottom-4 z-50 ml-auto flex max-w-sm flex-col gap-2;
+}
+
+.toast {
+  @apply pointer-events-auto flex items-start justify-between gap-3 rounded-control border border-border bg-surface p-4 text-sm text-foreground shadow-card;
+}
+
+.toast[data-tone='success'] {
+  @apply border-success;
+}
+
+.toast[data-tone='warning'] {
+  @apply border-warning;
+}
+
+.toast[data-tone='error'] {
+  @apply border-danger;
+}
+
+.toast__close {
+  @apply -m-2 grid size-10 shrink-0 place-items-center rounded-control text-xl text-muted transition-colors hover:bg-surface-muted hover:text-foreground;
+}

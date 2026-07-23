@@ -1,0 +1,58 @@
+<header class="header">
+  <div class="header__inner">
+    <a class="brand" routerLink="/" aria-label="TaskFlow">
+      <span class="brand__mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" focusable="false">
+          <path d="m7 12.5 3.1 3.1L17.5 8" />
+        </svg>
+      </span>
+      <span>TaskFlow</span>
+    </a>
+
+    <div class="header__actions">
+      <nav class="auth-nav" [attr.aria-label]="'header.authNavigation' | transloco">
+        <a class="auth-link" routerLink="/auth/login">
+          {{ 'header.login' | transloco }}
+        </a>
+        <a class="auth-link auth-link--primary" routerLink="/auth/register">
+          {{ 'header.register' | transloco }}
+        </a>
+      </nav>
+
+      <div class="preferences">
+        <label class="preference">
+          <span class="sr-only">{{ 'header.language' | transloco }}</span>
+          <select
+            class="preference__select"
+            [value]="locale.language()"
+            [attr.aria-label]="'header.language' | transloco"
+            (change)="changeLanguage($event)"
+          >
+            <option value="ru">RU</option>
+            <option value="en">EN</option>
+          </select>
+        </label>
+
+        <label class="preference">
+          <span class="sr-only">{{ 'header.theme' | transloco }}</span>
+          <select
+            class="preference__select preference__select--theme"
+            [value]="theme.mode()"
+            [attr.aria-label]="'header.theme' | transloco"
+            (change)="changeTheme($event)"
+          >
+            <option value="system">
+              {{ 'theme.system' | transloco }}
+            </option>
+            <option value="light">
+              {{ 'theme.light' | transloco }}
+            </option>
+            <option value="dark">
+              {{ 'theme.dark' | transloco }}
+            </option>
+          </select>
+        </label>
+      </div>
+    </div>
+  </div>
+</header>

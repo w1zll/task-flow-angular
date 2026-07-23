@@ -1,0 +1,12 @@
+<section class="error" role="alert">
+  <span class="error__mark" aria-hidden="true">!</span>
+  <div class="error__copy">
+    <h2 class="error__title">{{ title() }}</h2>
+    <p class="error__description">{{ description() }}</p>
+  </div>
+  @if (retryLabel()) {
+    <app-button variant="secondary" (pressed)="retry.emit()">
+      {{ retryLabel() }}
+    </app-button>
+  }
+</section>

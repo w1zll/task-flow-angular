@@ -1,1 +1,12 @@
-<router-outlet />
+<a class="skip-link" href="#main-content">
+  {{ 'a11y.skipToContent' | transloco }}
+</a>
+
+<app-header />
+<app-backend-status-banner />
+
+<div id="main-content" class="app-content" tabindex="-1">
+  <router-outlet />
+</div>
+
+<app-toast-region />

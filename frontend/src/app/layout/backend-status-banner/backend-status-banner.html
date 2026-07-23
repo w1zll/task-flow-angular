@@ -1,0 +1,34 @@
+@if (state() !== 'hidden') {
+  <aside
+    class="status-banner"
+    [class.status-banner--error]="state() === 'unavailable'"
+    role="status"
+  >
+    @if (state() === 'starting') {
+      <span class="status-banner__spinner" aria-hidden="true"></span>
+    }
+
+    <div class="status-banner__copy">
+      <p class="status-banner__title">
+        {{
+          (state() === 'starting' ? 'backend.startingTitle' : 'backend.unavailableTitle')
+            | transloco
+        }}
+      </p>
+      <p class="status-banner__description">
+        {{
+          (state() === 'starting'
+            ? 'backend.startingDescription'
+            : 'backend.unavailableDescription'
+          ) | transloco
+        }}
+      </p>
+    </div>
+
+    @if (state() === 'unavailable') {
+      <button class="status-banner__retry" type="button" (click)="retry.emit()">
+        {{ 'actions.retry' | transloco }}
+      </button>
+    }
+  </aside>
+}
