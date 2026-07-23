@@ -39,7 +39,8 @@
     "startingTitle": "Starting the TaskFlow server",
     "startingDescription": "The backend is waking up. This usually takes up to 30 seconds, and loading will continue automatically.",
     "unavailableTitle": "The server is unavailable",
-    "unavailableDescription": "The server did not respond in time. Check your connection and try again."
+    "unavailableDescription": "The server did not respond in time. Check your connection and try again.",
+    "ready": "The server is ready. Loading continues."
   },
   "actions": {
     "close": "Close",

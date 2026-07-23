@@ -86,7 +86,6 @@ export class ThemeService {
   private writeStoredMode(mode: ThemeMode): void {
     try {
       localStorage.setItem(THEME_STORAGE_KEY, mode);
-    } catch {
-    }
+    } catch {}
   }
 }

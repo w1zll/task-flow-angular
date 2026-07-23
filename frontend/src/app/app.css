@@ -1,7 +1,7 @@
 @reference "#app.css";
 
 :host {
-  @apply block min-h-dvh bg-canvas text-foreground;
+  @apply flex min-h-dvh flex-col bg-canvas text-foreground;
 }
 
 .skip-link {
@@ -13,5 +13,5 @@
 }
 
 .app-content {
-  @apply min-h-[calc(100dvh-4rem)];
+  @apply min-h-0 flex-1;
 }

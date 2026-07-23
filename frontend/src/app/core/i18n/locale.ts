@@ -51,8 +51,7 @@ export class LocaleService {
       if (isLanguage(storedLanguage)) {
         return storedLanguage;
       }
-    } catch {
-    }
+    } catch {}
 
     return navigator.language.toLowerCase().startsWith('ru') ? 'ru' : 'en';
   }
@@ -60,7 +59,6 @@ export class LocaleService {
   private writeStoredLanguage(language: Language): void {
     try {
       localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
-    } catch {
-    }
+    } catch {}
   }
 }

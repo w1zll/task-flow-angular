@@ -2,10 +2,11 @@
 
 .header {
   @apply sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur;
+  height: var(--tf-header-height);
 }
 
 .header__inner {
-  @apply mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-3 px-4 py-2 sm:px-6;
+  @apply mx-auto flex h-full max-w-7xl items-center justify-between gap-3 px-4 py-2 sm:px-6;
 }
 
 .brand {

@@ -24,6 +24,7 @@
 }
 
 :root {
+  --tf-header-height: 4rem;
   --tf-primary: #669266;
   --tf-primary-hover: #557e55;
   --tf-primary-soft: #eaf3ea;
@@ -36,6 +37,12 @@
   --tf-danger: #c24141;
   --tf-warning: #a16207;
   --tf-success: #3f7f4b;
+}
+
+@media (max-width: 639px) {
+  :root {
+    --tf-header-height: 7rem;
+  }
 }
 
 [data-theme='dark'] {

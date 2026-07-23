@@ -3,7 +3,7 @@
 </a>
 
 <app-header />
-<app-backend-status-banner />
+<app-backend-status-banner [state]="backendBannerState()" (retry)="retryBackend()" />
 
 <div id="main-content" class="app-content" tabindex="-1">
   <router-outlet />
