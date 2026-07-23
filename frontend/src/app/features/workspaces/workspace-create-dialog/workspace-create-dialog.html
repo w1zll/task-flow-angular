@@ -1,0 +1,50 @@
+<section class="dialog">
+  <div class="dialog__heading">
+    <h2 id="workspace-create-title">{{ 'workspaces.create.title' | transloco }}</h2>
+    <p>{{ 'workspaces.create.description' | transloco }}</p>
+  </div>
+
+  <form class="dialog__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <label class="field" for="workspace-name">
+      <span>{{ 'workspaces.create.name' | transloco }}</span>
+      <input
+        id="workspace-name"
+        type="text"
+        formControlName="name"
+        autocomplete="organization"
+        maxlength="120"
+        [attr.aria-invalid]="form.controls.name.touched && form.controls.name.invalid"
+        aria-describedby="workspace-name-error"
+      />
+    </label>
+    <div id="workspace-name-error" class="field-error" aria-live="polite">
+      @if (form.controls.name.touched && form.controls.name.hasError('required')) {
+        {{ 'workspaces.create.required' | transloco }}
+      } @else if (form.controls.name.touched && form.controls.name.hasError('maxlength')) {
+        {{ 'workspaces.create.maxLength' | transloco }}
+      }
+    </div>
+
+    @if (store.mutationErrorKey(); as errorKey) {
+      <p class="dialog__error" role="alert">{{ errorKey | transloco }}</p>
+    }
+
+    <div class="dialog__actions">
+      <app-button
+        type="button"
+        variant="secondary"
+        [disabled]="store.mutationStatus() === 'loading'"
+        (pressed)="close()"
+      >
+        {{ 'actions.cancel' | transloco }}
+      </app-button>
+      <app-button
+        type="submit"
+        [loading]="store.mutationStatus() === 'loading'"
+        [disabled]="store.mutationStatus() === 'loading'"
+      >
+        {{ 'workspaces.create.submit' | transloco }}
+      </app-button>
+    </div>
+  </form>
+</section>

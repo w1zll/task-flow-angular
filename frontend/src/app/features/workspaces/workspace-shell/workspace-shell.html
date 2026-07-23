@@ -1,0 +1,109 @@
+@if (store.isLoading()) {
+  <main class="shell-state" aria-busy="true">
+    <app-loading-skeleton [lines]="8" />
+  </main>
+} @else if (store.loadErrorKey(); as errorKey) {
+  <main class="shell-state">
+    <app-error-state
+      [title]="'workspaces.errors.loadTitle' | transloco"
+      [description]="errorKey | transloco"
+      [retryLabel]="'actions.retry' | transloco"
+      (retry)="retry()"
+    />
+  </main>
+} @else if (!workspace()) {
+  <main class="shell-state">
+    <app-error-state
+      [title]="'workspaces.errors.notFoundTitle' | transloco"
+      [description]="'workspaces.errors.notFound' | transloco"
+      [retryLabel]="'workspaces.catalog.back' | transloco"
+      (retry)="goToCatalog()"
+    />
+  </main>
+} @else if (workspace(); as currentWorkspace) {
+  <div class="shell">
+    <div class="shell__mobile-bar">
+      <button
+        class="drawer-button"
+        type="button"
+        [attr.aria-expanded]="drawerOpen()"
+        aria-controls="workspace-navigation"
+        (click)="toggleDrawer()"
+      >
+        <span aria-hidden="true">☰</span>
+        {{ 'workspaces.navigation.menu' | transloco }}
+      </button>
+      <strong>{{ currentWorkspace.name }}</strong>
+    </div>
+
+    @if (drawerOpen()) {
+      <button
+        class="shell__backdrop"
+        type="button"
+        [attr.aria-label]="'actions.close' | transloco"
+        (click)="closeDrawer()"
+      ></button>
+    }
+
+    <aside id="workspace-navigation" class="sidebar" [class.sidebar--open]="drawerOpen()">
+      <div class="sidebar__heading">
+        <a class="sidebar__catalog-link" routerLink="/workspaces" (click)="closeDrawer()">
+          {{ 'workspaces.catalog.back' | transloco }}
+        </a>
+        <app-workspace-switcher
+          [workspaces]="store.workspaces()"
+          [activeId]="currentWorkspace.id"
+          (selected)="selectWorkspace($event)"
+        />
+      </div>
+
+      <div class="workspace-summary">
+        <span class="workspace-summary__mark" aria-hidden="true">
+          {{ currentWorkspace.name.slice(0, 1).toUpperCase() }}
+        </span>
+        <div>
+          <strong>{{ currentWorkspace.name }}</strong>
+          <span>
+            {{ 'workspaces.roles.' + currentWorkspace.currentUserRole | transloco }}
+          </span>
+        </div>
+      </div>
+
+      <nav class="sidebar__nav" [attr.aria-label]="'workspaces.navigation.label' | transloco">
+        <a
+          routerLink="boards"
+          routerLinkActive="sidebar__link--active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="closeDrawer()"
+        >
+          {{ 'workspaces.navigation.boards' | transloco }}
+        </a>
+        <a routerLink="settings" routerLinkActive="sidebar__link--active" (click)="closeDrawer()">
+          {{ 'workspaces.navigation.settings' | transloco }}
+        </a>
+      </nav>
+
+      <div class="sidebar__boards">
+        <p>{{ 'workspaces.navigation.boardList' | transloco }}</p>
+        @for (board of workspaceBoards(); track board.id) {
+          <span>{{ board.title }}</span>
+        } @empty {
+          <span class="sidebar__empty">{{ 'workspaces.catalog.noBoards' | transloco }}</span>
+        }
+      </div>
+    </aside>
+
+    <main class="shell__main">
+      <header class="shell__header">
+        <div>
+          <p>{{ 'workspaces.roles.' + currentWorkspace.currentUserRole | transloco }}</p>
+          <h1>{{ currentWorkspace.name }}</h1>
+        </div>
+        @if (currentWorkspace.isPersonal) {
+          <span class="personal-badge">{{ 'workspaces.personal' | transloco }}</span>
+        }
+      </header>
+      <router-outlet />
+    </main>
+  </div>
+}

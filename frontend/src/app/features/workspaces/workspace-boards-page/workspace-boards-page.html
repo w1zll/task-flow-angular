@@ -1,0 +1,41 @@
+<section class="boards-section">
+  <div class="boards-section__heading">
+    <div>
+      <h2>{{ 'workspaces.boards.title' | transloco }}</h2>
+      <p>{{ 'workspaces.boards.description' | transloco }}</p>
+    </div>
+    <span>
+      {{
+        'workspaces.catalog.boardsCount'
+          | transloco
+            : {
+                count: boards().length,
+              }
+      }}
+    </span>
+  </div>
+
+  @if (boards().length === 0) {
+    <app-empty-state
+      [title]="'workspaces.boards.emptyTitle' | transloco"
+      [description]="'workspaces.boards.emptyDescription' | transloco"
+    />
+  } @else {
+    <div class="board-grid">
+      @for (board of boards(); track board.id) {
+        <article class="board-card">
+          <span
+            class="board-card__color"
+            [style.background-color]="board.color || 'var(--tf-primary)'"
+          ></span>
+          <div>
+            <h3>{{ board.title }}</h3>
+            <p>
+              {{ 'workspaces.roles.' + board.currentUserRole | transloco }}
+            </p>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>

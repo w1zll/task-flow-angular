@@ -1,0 +1,45 @@
+@reference "#app.css";
+
+:host {
+  @apply block w-[min(28rem,calc(100vw-2rem))];
+}
+
+.dialog {
+  @apply rounded-xl border border-border bg-surface p-6 text-foreground shadow-card;
+}
+
+.dialog__heading h2 {
+  @apply text-xl font-bold;
+}
+
+.dialog__heading p {
+  @apply mt-2 text-sm leading-6 text-muted;
+}
+
+.dialog__form {
+  @apply mt-6;
+}
+
+.field {
+  @apply grid gap-2 text-sm font-semibold;
+}
+
+.field input {
+  @apply min-h-12 rounded-control border border-border bg-canvas px-3 text-base font-normal hover:border-primary focus:border-primary;
+}
+
+.field input[aria-invalid='true'] {
+  @apply border-danger;
+}
+
+.field-error {
+  @apply min-h-7 pt-1 text-sm text-danger;
+}
+
+.dialog__error {
+  @apply mt-2 rounded-control border border-danger/40 bg-danger/10 px-3 py-2.5 text-sm text-danger;
+}
+
+.dialog__actions {
+  @apply mt-5 flex justify-end gap-3;
+}

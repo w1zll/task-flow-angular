@@ -3,6 +3,7 @@ export type QueryKey = readonly unknown[];
 export const queryKeys = {
   authUser: ['auth', 'user'] as const,
   workspaces: ['workspaces'] as const,
+  boardsCatalog: ['boards'] as const,
   boards: (workspaceId: string) => ['workspaces', workspaceId, 'boards'] as const,
   workspaceMembers: (workspaceId: string) => ['workspaces', workspaceId, 'members'] as const,
   workspaceInvites: (workspaceId: string) => ['workspaces', workspaceId, 'invites'] as const,

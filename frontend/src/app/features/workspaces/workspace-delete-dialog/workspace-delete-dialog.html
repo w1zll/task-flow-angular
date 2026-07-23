@@ -1,0 +1,37 @@
+<section class="dialog">
+  <div class="dialog__icon" aria-hidden="true">!</div>
+  <h2 id="workspace-delete-title">{{ 'workspaces.delete.title' | transloco }}</h2>
+  <p>
+    {{
+      'workspaces.delete.description'
+        | transloco
+          : {
+              name: workspace.name,
+            }
+    }}
+  </p>
+
+  @if (store.mutationErrorKey(); as errorKey) {
+    <p class="dialog__error" role="alert">{{ errorKey | transloco }}</p>
+  }
+
+  <div class="dialog__actions">
+    <app-button
+      type="button"
+      variant="secondary"
+      [disabled]="store.mutationStatus() === 'loading'"
+      (pressed)="close()"
+    >
+      {{ 'actions.cancel' | transloco }}
+    </app-button>
+    <app-button
+      type="button"
+      variant="danger"
+      [loading]="store.mutationStatus() === 'loading'"
+      [disabled]="store.mutationStatus() === 'loading'"
+      (pressed)="confirm()"
+    >
+      {{ 'workspaces.delete.submit' | transloco }}
+    </app-button>
+  </div>
+</section>

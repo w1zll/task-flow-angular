@@ -1,0 +1,93 @@
+<main class="catalog">
+  <header class="catalog__header">
+    <div>
+      <p class="catalog__eyebrow">TaskFlow</p>
+      <h1>{{ 'workspaces.catalog.title' | transloco }}</h1>
+      <p>{{ 'workspaces.catalog.description' | transloco }}</p>
+    </div>
+    <app-button (pressed)="openCreateDialog()">
+      {{ 'workspaces.create.action' | transloco }}
+    </app-button>
+  </header>
+
+  @if (store.isLoading()) {
+    <div class="catalog__loading" aria-busy="true">
+      <app-loading-skeleton [lines]="5" />
+      <app-loading-skeleton [lines]="5" />
+    </div>
+  } @else if (store.loadErrorKey(); as errorKey) {
+    <app-error-state
+      [title]="'workspaces.errors.loadTitle' | transloco"
+      [description]="errorKey | transloco"
+      [retryLabel]="'actions.retry' | transloco"
+      (retry)="retry()"
+    />
+  } @else if (store.workspaces().length === 0) {
+    <app-empty-state
+      [title]="'workspaces.empty.title' | transloco"
+      [description]="'workspaces.empty.description' | transloco"
+    >
+      <app-button (pressed)="openCreateDialog()">
+        {{ 'workspaces.create.action' | transloco }}
+      </app-button>
+    </app-empty-state>
+  } @else {
+    <div class="workspace-grid">
+      @for (workspace of store.workspaces(); track workspace.id) {
+        <article class="workspace-card" [class.workspace-card--active]="workspace.isActive">
+          <button class="workspace-card__open" type="button" (click)="openWorkspace(workspace)">
+            <span class="workspace-card__mark" aria-hidden="true">
+              {{ workspace.name.slice(0, 1).toUpperCase() }}
+            </span>
+            <span class="workspace-card__copy">
+              <span class="workspace-card__title-row">
+                <strong>{{ workspace.name }}</strong>
+                @if (workspace.isPersonal) {
+                  <span class="badge">{{ 'workspaces.personal' | transloco }}</span>
+                }
+                @if (workspace.isActive) {
+                  <span class="badge badge--active">
+                    {{ 'workspaces.active' | transloco }}
+                  </span>
+                }
+              </span>
+              <span class="workspace-card__role">
+                {{ 'workspaces.roles.' + workspace.currentUserRole | transloco }}
+              </span>
+            </span>
+          </button>
+
+          <div class="workspace-card__boards">
+            <span>
+              {{
+                'workspaces.catalog.boardsCount'
+                  | transloco
+                    : {
+                        count: store.boardsFor(workspace.id).length,
+                      }
+              }}
+            </span>
+            <div class="board-names">
+              @for (board of store.boardsFor(workspace.id).slice(0, 3); track board.id) {
+                <span>{{ board.title }}</span>
+              }
+              @if (store.boardsFor(workspace.id).length === 0) {
+                <span>{{ 'workspaces.catalog.noBoards' | transloco }}</span>
+              }
+            </div>
+          </div>
+
+          @if (workspace.currentUserRole === 'owner') {
+            <button
+              class="workspace-card__delete"
+              type="button"
+              (click)="openDeleteDialog($event, workspace)"
+            >
+              {{ 'workspaces.delete.action' | transloco }}
+            </button>
+          }
+        </article>
+      }
+    </div>
+  }
+</main>

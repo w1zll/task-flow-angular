@@ -82,11 +82,74 @@
     "ready": "The server is ready. Loading continues."
   },
   "workspaces": {
-    "placeholderTitle": "Your workspaces",
-    "placeholderDescription": "The list of available workspaces will appear here."
+    "personal": "Personal",
+    "active": "Active",
+    "switcher": {
+      "label": "Current workspace"
+    },
+    "catalog": {
+      "title": "Workspaces",
+      "description": "All available workspaces and boards in one place.",
+      "back": "All workspaces",
+      "boardsCount": "Boards: {{ count }}",
+      "noBoards": "No boards yet"
+    },
+    "create": {
+      "action": "Create workspace",
+      "title": "New workspace",
+      "description": "Create a separate workspace for a project or team.",
+      "name": "Name",
+      "required": "Enter a workspace name.",
+      "maxLength": "Name must contain no more than 120 characters.",
+      "submit": "Create"
+    },
+    "delete": {
+      "action": "Delete",
+      "title": "Delete workspace?",
+      "description": "The workspace \"{{ name }}\" and all its boards will be permanently deleted.",
+      "submit": "Delete workspace"
+    },
+    "empty": {
+      "title": "No available workspaces",
+      "description": "Create your first workspace to get started."
+    },
+    "roles": {
+      "owner": "Owner",
+      "admin": "Administrator",
+      "member": "Member",
+      "editor": "Editor",
+      "viewer": "Viewer"
+    },
+    "navigation": {
+      "label": "Workspace navigation",
+      "menu": "Menu",
+      "boards": "Boards",
+      "settings": "Settings",
+      "boardList": "Available boards"
+    },
+    "boards": {
+      "title": "Boards",
+      "description": "Boards available to you in this workspace.",
+      "emptyTitle": "No boards in this workspace yet",
+      "emptyDescription": "Board creation and management will be added in the next stage."
+    },
+    "settings": {
+      "title": "Workspace settings",
+      "description": "Members, roles, and invitations will be available here."
+    },
+    "errors": {
+      "loadTitle": "Workspaces could not be loaded",
+      "forbidden": "You do not have permission for this action.",
+      "notFoundTitle": "Workspace not found",
+      "notFound": "The workspace does not exist or you no longer have access to it.",
+      "invalidData": "Check the entered data.",
+      "unavailable": "The server is temporarily unavailable. Try again.",
+      "unknown": "The action could not be completed. Try again."
+    }
   },
   "actions": {
     "close": "Close",
+    "cancel": "Cancel",
     "retry": "Retry"
   },
   "toast": {

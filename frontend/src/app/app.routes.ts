@@ -28,16 +28,37 @@ export const routes: Routes = [
       {
         path: '',
         loadComponent: () =>
-          import('@features/workspaces/workspaces-placeholder-page/workspaces-placeholder-page').then(
-            ({ WorkspacesPlaceholderPage }) => WorkspacesPlaceholderPage,
+          import('@features/workspaces/workspace-catalog-page/workspace-catalog-page').then(
+            ({ WorkspaceCatalogPage }) => WorkspaceCatalogPage,
           ),
       },
       {
-        path: ':workspaceId/boards',
+        path: ':workspaceId',
         loadComponent: () =>
-          import('@features/workspaces/workspaces-placeholder-page/workspaces-placeholder-page').then(
-            ({ WorkspacesPlaceholderPage }) => WorkspacesPlaceholderPage,
+          import('@features/workspaces/workspace-shell/workspace-shell').then(
+            ({ WorkspaceShell }) => WorkspaceShell,
           ),
+        children: [
+          {
+            path: '',
+            pathMatch: 'full',
+            redirectTo: 'boards',
+          },
+          {
+            path: 'boards',
+            loadComponent: () =>
+              import('@features/workspaces/workspace-boards-page/workspace-boards-page').then(
+                ({ WorkspaceBoardsPage }) => WorkspaceBoardsPage,
+              ),
+          },
+          {
+            path: 'settings',
+            loadComponent: () =>
+              import('@features/workspaces/workspace-settings-placeholder-page/workspace-settings-placeholder-page').then(
+                ({ WorkspaceSettingsPlaceholderPage }) => WorkspaceSettingsPlaceholderPage,
+              ),
+          },
+        ],
       },
     ],
   },

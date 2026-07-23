@@ -1,0 +1,17 @@
+<label class="switcher">
+  <span class="switcher__label">{{ 'workspaces.switcher.label' | transloco }}</span>
+  <select
+    [value]="activeId() ?? ''"
+    [attr.aria-label]="'workspaces.switcher.label' | transloco"
+    (change)="selectWorkspace($event)"
+  >
+    @for (workspace of workspaces(); track workspace.id) {
+      <option [value]="workspace.id">
+        {{ workspace.name }}
+        @if (workspace.isPersonal) {
+          ({{ 'workspaces.personal' | transloco }})
+        }
+      </option>
+    }
+  </select>
+</label>

@@ -146,6 +146,17 @@ export const AuthStore = signalStore(
       clearError(): void {
         patchState(store, { errorKey: null });
       },
+      setActiveWorkspace(workspaceId: string | null): void {
+        const user = store.user();
+        if (!user) return;
+
+        const updatedUser = {
+          ...user,
+          activeWorkspaceId: workspaceId,
+        };
+        cache.set(queryKeys.authUser, updatedUser);
+        patchState(store, { user: updatedUser });
+      },
     };
   }),
   withHooks({

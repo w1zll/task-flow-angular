@@ -1,0 +1,136 @@
+@reference "#app.css";
+
+:host {
+  @apply block;
+}
+
+.shell-state {
+  @apply mx-auto w-full max-w-7xl px-4 py-10 sm:px-6;
+}
+
+.shell {
+  @apply mx-auto grid min-h-[calc(100dvh-var(--tf-header-height))] w-full max-w-[100rem] grid-cols-[17rem_minmax(0,1fr)];
+}
+
+.sidebar {
+  @apply border-r border-border bg-surface p-4;
+}
+
+.sidebar__heading {
+  @apply grid gap-3 border-b border-border pb-4;
+}
+
+.sidebar__catalog-link {
+  @apply w-fit text-sm font-semibold text-primary no-underline hover:underline;
+}
+
+.workspace-summary {
+  @apply my-4 flex items-center gap-3;
+}
+
+.workspace-summary__mark {
+  @apply grid size-10 shrink-0 place-items-center rounded-control bg-primary-soft font-bold text-primary;
+}
+
+.workspace-summary div {
+  @apply min-w-0;
+}
+
+.workspace-summary strong,
+.workspace-summary span {
+  @apply block truncate;
+}
+
+.workspace-summary span {
+  @apply mt-0.5 text-xs text-muted;
+}
+
+.sidebar__nav {
+  @apply grid gap-1;
+}
+
+.sidebar__nav a {
+  @apply min-h-11 rounded-control px-3 py-3 text-sm font-semibold text-foreground no-underline hover:bg-surface-muted;
+}
+
+.sidebar__nav .sidebar__link--active {
+  @apply bg-primary-soft text-primary;
+}
+
+.sidebar__boards {
+  @apply mt-5 grid gap-1 border-t border-border pt-4;
+}
+
+.sidebar__boards p {
+  @apply mb-1 text-xs font-bold uppercase tracking-wider text-muted;
+}
+
+.sidebar__boards > span {
+  @apply truncate rounded-md px-3 py-2 text-sm text-foreground;
+}
+
+.sidebar__empty {
+  @apply text-muted;
+}
+
+.shell__main {
+  @apply min-w-0 bg-canvas px-5 py-6 sm:px-8;
+}
+
+.shell__header {
+  @apply mb-6 flex items-center justify-between gap-4 border-b border-border pb-5;
+}
+
+.shell__header p {
+  @apply text-sm font-semibold text-primary;
+}
+
+.shell__header h1 {
+  @apply mt-1 text-2xl font-bold tracking-tight sm:text-3xl;
+}
+
+.personal-badge {
+  @apply shrink-0 rounded-full bg-primary-soft px-3 py-1.5 text-xs font-semibold text-primary;
+}
+
+.shell__mobile-bar,
+.shell__backdrop {
+  @apply hidden;
+}
+
+@media (max-width: 767px) {
+  .shell {
+    @apply block min-h-0;
+  }
+
+  .shell__mobile-bar {
+    @apply sticky z-20 flex min-h-14 items-center gap-3 border-b border-border bg-surface px-4;
+    top: var(--tf-header-height);
+  }
+
+  .shell__mobile-bar strong {
+    @apply min-w-0 truncate;
+  }
+
+  .drawer-button {
+    @apply inline-flex min-h-11 shrink-0 cursor-pointer items-center gap-2 rounded-control border border-border bg-surface px-3 text-sm font-semibold;
+  }
+
+  .shell__backdrop {
+    @apply fixed inset-x-0 bottom-0 z-20 block cursor-default border-0 bg-black/40;
+    top: var(--tf-header-height);
+  }
+
+  .sidebar {
+    @apply fixed bottom-0 left-0 z-30 w-[min(19rem,calc(100vw-3rem))] -translate-x-full overflow-y-auto shadow-card transition-transform;
+    top: var(--tf-header-height);
+  }
+
+  .sidebar--open {
+    @apply translate-x-0;
+  }
+
+  .shell__main {
+    @apply px-4 py-6;
+  }
+}
