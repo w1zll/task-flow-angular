@@ -1,12 +1,23 @@
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { provideClientHydration, withHttpTransferCacheOptions } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
-import { provideClientHydration } from '@angular/platform-browser';
+
+const isApiRequest = (url: string): boolean => {
+  const path = url.replace(/^https?:\/\/[^/]+/u, '');
+
+  return path === '/api' || path.startsWith('/api/');
+};
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes), provideClientHydration()
-  ]
+    provideRouter(routes),
+    provideClientHydration(
+      withHttpTransferCacheOptions({
+        filter: (request) => !isApiRequest(request.url),
+      }),
+    ),
+  ],
 };

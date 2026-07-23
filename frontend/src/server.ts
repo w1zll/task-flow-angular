@@ -10,7 +10,20 @@ import { join } from 'node:path';
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
 const app = express();
-const angularApp = new AngularNodeAppEngine();
+const allowedHosts = new Set(
+  [
+    'localhost',
+    '127.0.0.1',
+    process.env['VERCEL_URL'],
+    process.env['VERCEL_PROJECT_PRODUCTION_URL'],
+    ...(process.env['NG_ALLOWED_HOSTS'] ?? '').split(','),
+  ]
+    .map((host) => host?.trim())
+    .filter((host): host is string => Boolean(host)),
+);
+const angularApp = new AngularNodeAppEngine({
+  allowedHosts: [...allowedHosts],
+});
 
 /**
  * Example Express Rest API endpoints can be defined here.
@@ -41,9 +54,7 @@ app.use(
 app.use((req, res, next) => {
   angularApp
     .handle(req)
-    .then((response) =>
-      response ? writeResponseToNodeResponse(response, res) : next(),
-    )
+    .then((response) => (response ? writeResponseToNodeResponse(response, res) : next()))
     .catch(next);
 });
 

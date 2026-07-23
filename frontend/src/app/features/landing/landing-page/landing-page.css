@@ -1,0 +1,17 @@
+@reference "#app.css";
+
+.landing {
+  @apply mx-auto flex min-h-dvh max-w-3xl flex-col justify-center px-6 py-16;
+}
+
+.landing__eyebrow {
+  @apply mb-3 text-sm font-semibold uppercase tracking-widest text-emerald-700;
+}
+
+.landing__title {
+  @apply text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl;
+}
+
+.landing__description {
+  @apply mt-5 max-w-xl text-base leading-7 text-slate-600;
+}

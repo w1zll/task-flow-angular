@@ -1,0 +1,5 @@
+@reference "#app.css";
+
+:host {
+  @apply block min-h-dvh;
+}
