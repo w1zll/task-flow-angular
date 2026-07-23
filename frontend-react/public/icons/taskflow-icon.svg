@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="TaskFlow">
+  <rect width="512" height="512" rx="88" fill="#669266"/>
+  <rect x="104" y="116" width="304" height="280" rx="34" fill="#f7fbf5"/>
+  <rect x="136" y="152" width="64" height="208" rx="18" fill="#203020"/>
+  <rect x="224" y="152" width="64" height="208" rx="18" fill="#365536"/>
+  <rect x="312" y="152" width="64" height="208" rx="18" fill="#86ad7f"/>
+  <rect x="152" y="184" width="32" height="32" rx="8" fill="#f7fbf5"/>
+  <rect x="240" y="184" width="32" height="32" rx="8" fill="#f7fbf5"/>
+  <rect x="328" y="184" width="32" height="32" rx="8" fill="#203020"/>
+</svg>
