@@ -1,0 +1,33 @@
+@reference "#app.css";
+
+.auth-page {
+  @apply mx-auto flex w-full max-w-7xl justify-center px-4 py-10 sm:px-6 sm:py-16;
+}
+
+.auth-card {
+  @apply h-fit w-full max-w-md rounded-xl border border-border bg-surface p-6 shadow-card sm:p-8;
+}
+
+.auth-card__heading {
+  @apply mb-7 text-center;
+}
+
+.auth-card__eyebrow {
+  @apply mb-2 text-sm font-bold text-primary;
+}
+
+.auth-card__heading h1 {
+  @apply text-3xl font-bold tracking-tight text-foreground;
+}
+
+.auth-card__heading > p:last-child {
+  @apply mt-2 text-sm leading-6 text-muted;
+}
+
+.auth-card__switch {
+  @apply mt-6 text-center text-sm text-muted;
+}
+
+.auth-card__switch a {
+  @apply font-semibold text-primary underline-offset-4 hover:underline;
+}

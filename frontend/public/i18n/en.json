@@ -6,8 +6,47 @@
     "authNavigation": "Authentication",
     "login": "Sign in",
     "register": "Register",
+    "workspaces": "Workspaces",
+    "logout": "Sign out",
     "language": "Interface language",
     "theme": "Interface theme"
+  },
+  "auth": {
+    "fields": {
+      "name": "Name",
+      "email": "Email",
+      "password": "Password"
+    },
+    "login": {
+      "title": "Sign in to TaskFlow",
+      "description": "Continue working with your workspaces and boards.",
+      "submit": "Sign in",
+      "noAccount": "No account?",
+      "registerLink": "Create one"
+    },
+    "register": {
+      "title": "Create an account",
+      "description": "Create a personal workspace and start planning tasks.",
+      "submit": "Create account",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Sign in"
+    },
+    "validation": {
+      "required": "This field is required.",
+      "email": "Enter a valid email.",
+      "nameMin": "Name must contain at least 2 characters.",
+      "nameMax": "Name must contain no more than 100 characters.",
+      "passwordMin": "Password must contain at least 6 characters.",
+      "passwordMax": "Password must contain no more than 100 characters."
+    },
+    "errors": {
+      "invalidCredentials": "Incorrect email or password.",
+      "emailTaken": "An account with this email already exists.",
+      "invalidData": "Check the entered data.",
+      "unavailable": "The server is temporarily unavailable. Try again.",
+      "session": "The session could not be restored. Sign in again.",
+      "unknown": "The request could not be completed. Try again."
+    }
   },
   "theme": {
     "system": "System",
@@ -41,6 +80,10 @@
     "unavailableTitle": "The server is unavailable",
     "unavailableDescription": "The server did not respond in time. Check your connection and try again.",
     "ready": "The server is ready. Loading continues."
+  },
+  "workspaces": {
+    "placeholderTitle": "Your workspaces",
+    "placeholderDescription": "The list of available workspaces will appear here."
   },
   "actions": {
     "close": "Close",

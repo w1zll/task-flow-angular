@@ -34,8 +34,20 @@
   @apply inline-flex min-h-11 items-center justify-center rounded-control px-3 text-sm font-semibold text-foreground no-underline transition-colors hover:bg-surface-muted;
 }
 
+button.auth-link {
+  @apply cursor-pointer border-0;
+}
+
 .auth-link--primary {
   @apply bg-primary text-white hover:bg-primary-hover;
+}
+
+.auth-user {
+  @apply max-w-28 truncate px-1 text-sm font-semibold text-muted;
+}
+
+.auth-loading {
+  @apply h-11 w-32 animate-pulse rounded-control bg-surface-muted;
 }
 
 .preference__select {
@@ -61,6 +73,10 @@
 
   .auth-link {
     @apply px-2.5;
+  }
+
+  .auth-user {
+    @apply hidden;
   }
 }
 

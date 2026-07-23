@@ -1,0 +1,16 @@
+<main class="auth-page">
+  <section class="auth-card" [attr.aria-labelledby]="'login-title'">
+    <div class="auth-card__heading">
+      <p class="auth-card__eyebrow">TaskFlow</p>
+      <h1 id="login-title">{{ 'auth.login.title' | transloco }}</h1>
+      <p>{{ 'auth.login.description' | transloco }}</p>
+    </div>
+
+    <app-login-form />
+
+    <p class="auth-card__switch">
+      {{ 'auth.login.noAccount' | transloco }}
+      <a routerLink="/auth/register">{{ 'auth.login.registerLink' | transloco }}</a>
+    </p>
+  </section>
+</main>
