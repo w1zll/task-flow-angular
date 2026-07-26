@@ -1,9 +1,16 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "angular",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/task-flow-angular/browser",
   "rewrites": [
     {
       "source": "/api/:path*",
       "destination": "https://task-flow-api-for-angular.onrender.com/api/:path*"
+    },
+    {
+      "source": "^/(.+)$",
+      "destination": "/index.csr.html"
     }
   ],
   "headers": [
