@@ -1,0 +1,14 @@
+<main class="legacy-state">
+  @if (errorKey(); as errorKey) {
+    <app-error-state
+      [title]="'boards.errors.detailTitle' | transloco"
+      [description]="errorKey | transloco"
+      [retryLabel]="'actions.retry' | transloco"
+      (retry)="retry()"
+    />
+  } @else {
+    <div aria-busy="true">
+      <app-loading-skeleton [lines]="6" />
+    </div>
+  }
+</main>

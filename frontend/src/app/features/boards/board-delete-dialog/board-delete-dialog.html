@@ -1,0 +1,23 @@
+<section class="dialog">
+  <span class="dialog__icon" aria-hidden="true">!</span>
+  <h2 id="board-delete-title">{{ 'boards.delete.title' | transloco }}</h2>
+  <p>{{ 'boards.delete.description' | transloco: { title: board.title } }}</p>
+
+  @if (store.errorKey(); as errorKey) {
+    <p class="dialog__error" role="alert">{{ errorKey | transloco }}</p>
+  }
+
+  <div class="dialog__actions">
+    <app-button variant="secondary" [disabled]="store.busyId() === board.id" (pressed)="close()">
+      {{ 'actions.cancel' | transloco }}
+    </app-button>
+    <app-button
+      variant="danger"
+      [loading]="store.busyId() === board.id"
+      [disabled]="store.busyId() === board.id"
+      (pressed)="confirm()"
+    >
+      {{ 'boards.delete.submit' | transloco }}
+    </app-button>
+  </div>
+</section>

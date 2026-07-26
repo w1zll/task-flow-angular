@@ -4,35 +4,80 @@
       <h2>{{ 'workspaces.boards.title' | transloco }}</h2>
       <p>{{ 'workspaces.boards.description' | transloco }}</p>
     </div>
-    <span>
-      {{
-        'workspaces.catalog.boardsCount'
-          | transloco
-            : {
-                count: boards().length,
-              }
-      }}
-    </span>
+    <div class="boards-section__heading-actions">
+      <span>
+        {{
+          'workspaces.catalog.boardsCount'
+            | transloco
+              : {
+                  count: boards().length,
+                }
+        }}
+      </span>
+      <app-button (pressed)="openCreateDialog()">
+        {{ 'boards.create.action' | transloco }}
+      </app-button>
+    </div>
   </div>
 
-  @if (boards().length === 0) {
+  @if (store.isLoading()) {
+    <div class="board-grid" aria-busy="true">
+      <app-loading-skeleton [lines]="5" />
+      <app-loading-skeleton [lines]="5" />
+      <app-loading-skeleton [lines]="5" />
+    </div>
+  } @else if (store.loadErrorKey(); as errorKey) {
+    <app-error-state
+      [title]="'boards.errors.loadTitle' | transloco"
+      [description]="errorKey | transloco"
+      [retryLabel]="'actions.retry' | transloco"
+      (retry)="retry()"
+    />
+  } @else if (boards().length === 0) {
     <app-empty-state
       [title]="'workspaces.boards.emptyTitle' | transloco"
       [description]="'workspaces.boards.emptyDescription' | transloco"
-    />
+    >
+      <app-button (pressed)="openCreateDialog()">
+        {{ 'boards.create.action' | transloco }}
+      </app-button>
+    </app-empty-state>
   } @else {
     <div class="board-grid">
       @for (board of boards(); track board.id) {
         <article class="board-card">
-          <span
-            class="board-card__color"
-            [style.background-color]="board.color || 'var(--tf-primary)'"
-          ></span>
-          <div>
-            <h3>{{ board.title }}</h3>
-            <p>
-              {{ 'workspaces.roles.' + board.currentUserRole | transloco }}
-            </p>
+          <button class="board-card__open" type="button" (click)="openBoard(board)">
+            <span
+              class="board-card__color"
+              [style.background-color]="board.color || 'var(--tf-primary)'"
+            ></span>
+            <span class="board-card__content">
+              <span class="board-card__heading">
+                <strong>{{ board.title }}</strong>
+                <span class="role-badge">
+                  {{ 'workspaces.roles.' + board.currentUserRole | transloco }}
+                </span>
+              </span>
+              <span class="board-card__description">
+                {{ board.description || ('boards.noDescription' | transloco) }}
+              </span>
+            </span>
+          </button>
+          <div class="board-card__actions">
+            @if (board.capabilities.canManageBoardSettings) {
+              <button type="button" (click)="openEditDialog($event, board)">
+                {{ 'boards.edit.action' | transloco }}
+              </button>
+            }
+            @if (board.capabilities.canDeleteBoard) {
+              <button
+                class="board-card__delete"
+                type="button"
+                (click)="openDeleteDialog($event, board)"
+              >
+                {{ 'boards.delete.action' | transloco }}
+              </button>
+            }
           </div>
         </article>
       }

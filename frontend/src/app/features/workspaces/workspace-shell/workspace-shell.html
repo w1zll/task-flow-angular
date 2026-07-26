@@ -86,7 +86,17 @@
       <div class="sidebar__boards">
         <p>{{ 'workspaces.navigation.boardList' | transloco }}</p>
         @for (board of workspaceBoards(); track board.id) {
-          <span>{{ board.title }}</span>
+          <a
+            [routerLink]="['boards', board.id]"
+            routerLinkActive="sidebar__board--active"
+            (click)="closeDrawer()"
+          >
+            <span
+              class="sidebar__board-color"
+              [style.background-color]="board.color || 'var(--tf-primary)'"
+            ></span>
+            <span>{{ board.title }}</span>
+          </a>
         } @empty {
           <span class="sidebar__empty">{{ 'workspaces.catalog.noBoards' | transloco }}</span>
         }

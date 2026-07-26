@@ -36,6 +36,14 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'boards/:boardId',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('@features/boards/legacy-board-redirect-page/legacy-board-redirect-page').then(
+        ({ LegacyBoardRedirectPage }) => LegacyBoardRedirectPage,
+      ),
+  },
+  {
     path: 'workspaces',
     canActivate: [authGuard],
     children: [
@@ -63,6 +71,13 @@ export const routes: Routes = [
             loadComponent: () =>
               import('@features/workspaces/workspace-boards-page/workspace-boards-page').then(
                 ({ WorkspaceBoardsPage }) => WorkspaceBoardsPage,
+              ),
+          },
+          {
+            path: 'boards/:boardId',
+            loadComponent: () =>
+              import('@features/boards/board-detail-page/board-detail-page').then(
+                ({ BoardDetailPage }) => BoardDetailPage,
               ),
           },
           {

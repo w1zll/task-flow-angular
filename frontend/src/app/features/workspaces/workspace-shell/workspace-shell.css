@@ -65,12 +65,24 @@
   @apply mb-1 text-xs font-bold uppercase tracking-wider text-muted;
 }
 
-.sidebar__boards > span {
-  @apply truncate rounded-md px-3 py-2 text-sm text-foreground;
+.sidebar__boards > a {
+  @apply flex min-h-10 items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground no-underline hover:bg-surface-muted;
+}
+
+.sidebar__boards > a > span:last-child {
+  @apply truncate;
+}
+
+.sidebar__boards .sidebar__board--active {
+  @apply bg-primary-soft font-semibold text-primary;
+}
+
+.sidebar__board-color {
+  @apply block size-2.5 shrink-0 rounded-full;
 }
 
 .sidebar__empty {
-  @apply text-muted;
+  @apply block truncate rounded-md px-3 py-2 text-sm text-muted;
 }
 
 .shell__main {

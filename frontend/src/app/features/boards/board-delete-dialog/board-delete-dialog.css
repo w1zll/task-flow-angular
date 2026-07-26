@@ -1,0 +1,29 @@
+@reference "#app.css";
+
+:host {
+  @apply block w-[min(28rem,calc(100vw-2rem))];
+}
+
+.dialog {
+  @apply rounded-xl border border-border bg-surface p-6 text-foreground shadow-card;
+}
+
+.dialog__icon {
+  @apply mb-4 grid size-10 place-items-center rounded-full bg-danger/10 text-lg font-bold text-danger;
+}
+
+.dialog h2 {
+  @apply text-xl font-bold;
+}
+
+.dialog > p {
+  @apply mt-3 text-sm leading-6 text-muted;
+}
+
+.dialog__error {
+  @apply rounded-control border border-danger/40 bg-danger/10 px-3 py-2.5 text-sm text-danger;
+}
+
+.dialog__actions {
+  @apply mt-6 flex justify-end gap-3;
+}

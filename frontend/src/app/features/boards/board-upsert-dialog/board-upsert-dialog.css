@@ -1,0 +1,77 @@
+@reference "#app.css";
+
+:host {
+  @apply block w-[min(34rem,calc(100vw-2rem))];
+}
+
+.dialog {
+  @apply max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-xl border border-border bg-surface p-6 text-foreground shadow-card;
+}
+
+.dialog h2 {
+  @apply text-xl font-bold;
+}
+
+.dialog > p {
+  @apply mt-2 text-sm leading-6 text-muted;
+}
+
+.dialog form {
+  @apply mt-5 grid gap-4;
+}
+
+.field {
+  @apply grid gap-2 text-sm font-semibold;
+}
+
+.field input[type='text'],
+.field textarea {
+  @apply min-h-11 w-full resize-y rounded-control border border-border bg-canvas px-3 py-2 text-base font-normal text-foreground;
+}
+
+.field small,
+.template-option small {
+  @apply text-xs font-normal text-muted;
+}
+
+.field > small {
+  @apply text-danger;
+}
+
+.color-field {
+  @apply grid grid-cols-[3.25rem_minmax(0,1fr)] gap-2;
+}
+
+.color-field input[type='color'] {
+  @apply h-11 w-full cursor-pointer rounded-control border border-border bg-canvas p-1;
+}
+
+fieldset {
+  @apply grid gap-2 rounded-control border border-border p-3;
+}
+
+legend {
+  @apply px-1 text-sm font-semibold;
+}
+
+.template-option {
+  @apply flex cursor-pointer items-start gap-3 rounded-control p-2 hover:bg-surface-muted;
+}
+
+.template-option input {
+  @apply mt-1 accent-primary;
+}
+
+.template-option span,
+.template-option strong,
+.template-option small {
+  @apply block;
+}
+
+.dialog__error {
+  @apply rounded-control border border-danger/40 bg-danger/10 px-3 py-2.5 text-sm text-danger;
+}
+
+.dialog__actions {
+  @apply mt-2 flex justify-end gap-3;
+}

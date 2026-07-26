@@ -1,0 +1,52 @@
+<section class="board-page">
+  @if (loading()) {
+    <div aria-busy="true">
+      <app-loading-skeleton [lines]="8" />
+    </div>
+  } @else if (errorKey(); as errorKey) {
+    <app-error-state
+      [title]="
+        (errorKey === 'boards.errors.forbidden'
+          ? 'boards.errors.permissionTitle'
+          : 'boards.errors.detailTitle'
+        ) | transloco
+      "
+      [description]="errorKey | transloco"
+      [retryLabel]="'actions.retry' | transloco"
+      (retry)="retry()"
+    />
+  } @else if (board(); as currentBoard) {
+    <a class="board-page__back" [routerLink]="['/workspaces', workspaceId(), 'boards']">
+      {{ 'boards.detail.back' | transloco }}
+    </a>
+    <header class="board-page__header">
+      <span
+        class="board-page__color"
+        [style.background-color]="currentBoard.color || 'var(--tf-primary)'"
+      ></span>
+      <div>
+        <p>{{ 'workspaces.roles.' + currentBoard.currentUserRole | transloco }}</p>
+        <h2>{{ currentBoard.title }}</h2>
+        @if (currentBoard.description) {
+          <span>{{ currentBoard.description }}</span>
+        }
+      </div>
+    </header>
+
+    <div class="columns-preview">
+      @for (column of currentBoard.columns ?? []; track column.id) {
+        <article>
+          <strong>{{ column.title }}</strong>
+          <span>
+            {{ 'boards.detail.tasksCount' | transloco: { count: column.tasks?.length ?? 0 } }}
+          </span>
+        </article>
+      } @empty {
+        <div class="columns-preview__empty">
+          <h3>{{ 'boards.detail.emptyTitle' | transloco }}</h3>
+          <p>{{ 'boards.detail.emptyDescription' | transloco }}</p>
+        </div>
+      }
+    </div>
+  }
+</section>
