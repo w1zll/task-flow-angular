@@ -241,6 +241,7 @@
   },
   "kanban": {
     "boardLabel": "Канбан-доска",
+    "pending": "Сохраняем…",
     "mobile": {
       "activeColumn": "Активная колонка"
     },

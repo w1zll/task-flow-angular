@@ -28,6 +28,10 @@ const boardErrorKey = (error: unknown): string => {
   return 'boards.errors.unknown';
 };
 
+const isUncertainResult = (error: unknown): boolean =>
+  error instanceof ApiError &&
+  (error.kind === 'network' || error.kind === 'server' || error.kind === 'unexpected-response');
+
 @Injectable({ providedIn: 'root' })
 export class BoardCatalogStore {
   private readonly api = inject(BoardsApi);
@@ -59,22 +63,55 @@ export class BoardCatalogStore {
   async update(boardId: string, data: UpdateBoardDto): Promise<BoardResponseDto> {
     this.busyId.set(boardId);
     this.errorKey.set(null);
+    const transaction = this.cache.optimisticTransaction(boardId);
+    const patchBoard = (board: BoardResponseDto): BoardResponseDto => ({ ...board, ...data });
+    const cachedDetail = this.cache.get<BoardResponseDto>(queryKeys.boardDetail(boardId));
+    if (cachedDetail) {
+      transaction.update<BoardResponseDto>(queryKeys.boardDetail(boardId), patchBoard);
+    }
+    const cachedCatalog = this.cache.get<readonly BoardResponseDto[]>(queryKeys.boardsCatalog);
+    if (cachedCatalog) {
+      transaction.update<readonly BoardResponseDto[]>(queryKeys.boardsCatalog, (boards = []) =>
+        boards.map((board) => (board.id === boardId ? patchBoard(board) : board)),
+      );
+    }
 
     try {
       const updated = await firstValueFrom(this.api.update({ id: boardId, body: data }));
-      this.upsertCatalog(updated);
-      const detail = this.cache.get<BoardResponseDto>(queryKeys.boardDetail(boardId));
-      if (detail) {
-        this.cache.set(queryKeys.boardDetail(boardId), {
-          ...detail,
-          ...updated,
-          columns: updated.columns ?? detail.columns,
-          members: updated.members ?? detail.members,
-        });
+      if (transaction.isActive()) {
+        if (cachedCatalog) {
+          transaction.reconcile<readonly BoardResponseDto[]>(
+            queryKeys.boardsCatalog,
+            (boards = []) =>
+              boards.map((board) =>
+                board.id === boardId
+                  ? {
+                      ...board,
+                      ...updated,
+                      columns: updated.columns ?? board.columns,
+                      members: updated.members ?? board.members,
+                    }
+                  : board,
+              ),
+          );
+        }
+        if (cachedDetail) {
+          transaction.reconcile<BoardResponseDto>(queryKeys.boardDetail(boardId), (detail) => ({
+            ...(detail ?? cachedDetail),
+            ...updated,
+            columns: updated.columns ?? detail?.columns ?? cachedDetail.columns,
+            members: updated.members ?? detail?.members ?? cachedDetail.members,
+          }));
+        }
+        transaction.commit();
       }
       return updated;
     } catch (error) {
+      transaction.rollback();
       this.errorKey.set(boardErrorKey(error));
+      if (isUncertainResult(error)) {
+        void this.detail(boardId, true).catch(() => undefined);
+      }
       throw error;
     } finally {
       this.busyId.set(null);

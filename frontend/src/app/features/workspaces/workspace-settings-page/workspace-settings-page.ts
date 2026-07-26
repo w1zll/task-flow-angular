@@ -23,6 +23,8 @@ import {
   WorkspaceResponseDto,
 } from '@core/api/generated';
 import { AuthStore } from '@core/auth/auth.store';
+import { QueryCacheStore } from '@core/cache/query-cache.store';
+import { queryKeys } from '@core/cache/query-key';
 import { LocalizedDatePipe } from '@core/i18n/localized-date.pipe';
 import {
   WorkspaceDeleteDialog,
@@ -49,6 +51,7 @@ export class WorkspaceSettingsPage implements OnInit {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly workspacesApi = inject(WorkspacesApi);
   private readonly invitesApi = inject(WorkspaceInvitesApi);
+  private readonly cache = inject(QueryCacheStore);
   private readonly workspaceStore = inject(WorkspaceStore);
   protected readonly auth = inject(AuthStore);
 
@@ -56,8 +59,14 @@ export class WorkspaceSettingsPage implements OnInit {
   protected readonly workspace = computed(() =>
     this.workspaceStore.workspaces().find((item) => item.id === this.workspaceId),
   );
-  protected readonly members = signal<readonly WorkspaceMemberResponseDto[]>([]);
-  protected readonly invites = signal<readonly WorkspaceInviteResponseDto[]>([]);
+  private readonly membersQuery = this.cache.entry<readonly WorkspaceMemberResponseDto[]>(
+    queryKeys.workspaceMembers(this.workspaceId),
+  );
+  private readonly invitesQuery = this.cache.entry<readonly WorkspaceInviteResponseDto[]>(
+    queryKeys.workspaceInvites(this.workspaceId),
+  );
+  protected readonly members = computed(() => this.membersQuery()?.data ?? []);
+  protected readonly invites = computed(() => this.invitesQuery()?.data ?? []);
   protected readonly loading = signal(true);
   protected readonly loadErrorKey = signal<string | null>(null);
   protected readonly mutationErrorKey = signal<string | null>(null);
@@ -117,8 +126,9 @@ export class WorkspaceSettingsPage implements OnInit {
           body: { role },
         }),
       );
-      this.members.update((members) =>
-        members.map((item) => (item.id === updated.id ? updated : item)),
+      this.cache.update<readonly WorkspaceMemberResponseDto[]>(
+        queryKeys.workspaceMembers(this.workspaceId),
+        (members = []) => members.map((item) => (item.id === updated.id ? updated : item)),
       );
     } catch (error) {
       this.mutationErrorKey.set(this.errorKey(error));
@@ -144,7 +154,10 @@ export class WorkspaceSettingsPage implements OnInit {
       await firstValueFrom(
         this.workspacesApi.removeMember({ id: this.workspaceId, memberId: member.id }),
       );
-      this.members.update((members) => members.filter((item) => item.id !== member.id));
+      this.cache.update<readonly WorkspaceMemberResponseDto[]>(
+        queryKeys.workspaceMembers(this.workspaceId),
+        (members = []) => members.filter((item) => item.id !== member.id),
+      );
       this.confirmRemoveId.set(null);
     } catch (error) {
       this.mutationErrorKey.set(this.errorKey(error));
@@ -177,7 +190,10 @@ export class WorkspaceSettingsPage implements OnInit {
           },
         }),
       );
-      this.invites.update((invites) => [created, ...invites]);
+      this.cache.update<readonly WorkspaceInviteResponseDto[]>(
+        queryKeys.workspaceInvites(this.workspaceId),
+        (invites = []) => [created, ...invites.filter((invite) => invite.id !== created.id)],
+      );
       this.createdInviteUrl.set(this.inviteUrl(created.token));
       this.inviteForm.reset({
         defaultRole: 'member',
@@ -212,7 +228,10 @@ export class WorkspaceSettingsPage implements OnInit {
       await firstValueFrom(
         this.invitesApi.revoke({ workspaceId: this.workspaceId, inviteId: invite.id }),
       );
-      this.invites.update((invites) => invites.filter((item) => item.id !== invite.id));
+      this.cache.update<readonly WorkspaceInviteResponseDto[]>(
+        queryKeys.workspaceInvites(this.workspaceId),
+        (invites = []) => invites.filter((item) => item.id !== invite.id),
+      );
     } catch (error) {
       this.mutationErrorKey.set(this.errorKey(error));
     } finally {
@@ -244,13 +263,23 @@ export class WorkspaceSettingsPage implements OnInit {
     await this.workspaceStore.load(force);
 
     try {
-      const membersPromise = firstValueFrom(this.workspacesApi.members({ id: this.workspaceId }));
+      const membersPromise = firstValueFrom(
+        this.cache.execute(
+          queryKeys.workspaceMembers(this.workspaceId),
+          () => this.workspacesApi.members({ id: this.workspaceId }),
+          { staleTime: 30_000, force },
+        ),
+      );
       const invitesPromise = this.canManageInvites()
-        ? firstValueFrom(this.invitesApi.list({ workspaceId: this.workspaceId }))
+        ? firstValueFrom(
+            this.cache.execute(
+              queryKeys.workspaceInvites(this.workspaceId),
+              () => this.invitesApi.list({ workspaceId: this.workspaceId }),
+              { staleTime: 30_000, force },
+            ),
+          )
         : Promise.resolve([] as readonly WorkspaceInviteResponseDto[]);
-      const [members, invites] = await Promise.all([membersPromise, invitesPromise]);
-      this.members.set(members);
-      this.invites.set(invites);
+      await Promise.all([membersPromise, invitesPromise]);
     } catch (error) {
       this.loadErrorKey.set(this.errorKey(error));
     } finally {

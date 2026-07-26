@@ -241,6 +241,7 @@
   },
   "kanban": {
     "boardLabel": "Kanban board",
+    "pending": "Saving…",
     "mobile": {
       "activeColumn": "Active column"
     },

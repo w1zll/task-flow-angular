@@ -36,6 +36,13 @@ ng build
 
 This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
 
+## Server-state cache
+
+Cached reads use stale-while-revalidate semantics. Navigation receives the current value immediately
+and starts one deduplicated background request for the same query key even inside `staleTime`.
+Structurally equal responses preserve the existing data reference; different responses replace the
+cache value. Background failures keep available data visible and mark it stale.
+
 ## Running unit tests
 
 To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:

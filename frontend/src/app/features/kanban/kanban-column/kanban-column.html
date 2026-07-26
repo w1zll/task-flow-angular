@@ -1,4 +1,4 @@
-<section class="kanban-column">
+<section class="kanban-column" [class.kanban-column--pending]="busyId() === column().id">
   <header>
     <div>
       <h3>{{ column().title }}</h3>
@@ -55,6 +55,7 @@
         [count]="tasks().length"
         [canEdit]="canEditTasks()"
         [busy]="busyId() !== null"
+        [pending]="busyId() === task.id || task.id.startsWith('optimistic:')"
         (edit)="editTask.emit(task)"
         (remove)="removeTask.emit(task)"
         (toggleCompleted)="toggleTask.emit(task)"

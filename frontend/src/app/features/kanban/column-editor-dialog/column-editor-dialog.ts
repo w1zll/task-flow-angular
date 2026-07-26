@@ -46,11 +46,12 @@ export class ColumnEditorDialog {
 
     try {
       const title = this.form.controls.title.value.trim();
-      const board =
+      const mutation =
         this.data.mode === 'create'
-          ? await this.store.createColumn(this.data.board, title)
-          : await this.store.renameColumn(this.data.board.id, this.data.column.id, title);
-      this.dialogRef.close(board);
+          ? this.store.createColumn(this.data.board, title)
+          : this.store.renameColumn(this.data.board.id, this.data.column.id, title);
+      this.dialogRef.close();
+      await mutation;
     } catch {}
   }
 

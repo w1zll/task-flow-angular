@@ -1,9 +1,17 @@
-<article class="task-card" [class.task-card--completed]="task().isCompleted">
+<article
+  class="task-card"
+  [class.task-card--completed]="task().isCompleted"
+  [class.task-card--pending]="pending()"
+  [attr.aria-busy]="pending()"
+>
   <button class="task-card__body" type="button" (click)="edit.emit()">
     <span class="task-card__priority" [attr.data-priority]="task().priority">
       {{ 'kanban.priority.' + task().priority | transloco }}
     </span>
     <strong>{{ task().title }}</strong>
+    @if (pending()) {
+      <small class="task-card__pending">{{ 'kanban.pending' | transloco }}</small>
+    }
     @if (task().description) {
       <p>{{ task().description }}</p>
     }

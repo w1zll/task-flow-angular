@@ -110,15 +110,6 @@
     </aside>
 
     <main class="shell__main">
-      <header class="shell__header">
-        <div>
-          <p>{{ 'workspaces.roles.' + currentWorkspace.currentUserRole | transloco }}</p>
-          <h1>{{ currentWorkspace.name }}</h1>
-        </div>
-        @if (currentWorkspace.isPersonal) {
-          <span class="personal-badge">{{ 'workspaces.personal' | transloco }}</span>
-        }
-      </header>
       <router-outlet />
     </main>
   </div>

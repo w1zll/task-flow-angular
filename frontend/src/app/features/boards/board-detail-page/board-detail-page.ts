@@ -14,6 +14,8 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { firstValueFrom } from 'rxjs';
 
 import { BoardResponseDto, ColumnResponseDto, TaskResponseDto } from '@core/api/generated';
+import { QueryCacheStore } from '@core/cache/query-cache.store';
+import { queryKeys } from '@core/cache/query-key';
 import { BoardMembersDialog } from '@features/board-members/board-members-dialog/board-members-dialog';
 import { BoardCatalogStore } from '@features/boards/board-catalog.store';
 import {
@@ -50,6 +52,7 @@ export class BoardDetailPage {
   private readonly router = inject(Router);
   private readonly dialog = inject(Dialog);
   private readonly store = inject(BoardCatalogStore);
+  private readonly cache = inject(QueryCacheStore);
   protected readonly kanban = inject(KanbanStore);
   private readonly paramMap = toSignal(this.route.paramMap, {
     initialValue: this.route.snapshot.paramMap,
@@ -60,7 +63,9 @@ export class BoardDetailPage {
 
   protected readonly boardId = computed(() => this.paramMap().get('boardId') ?? '');
   protected readonly workspaceId = computed(() => this.parentParamMap().get('workspaceId') ?? '');
-  protected readonly board = signal<BoardResponseDto | null>(null);
+  protected readonly board = computed(
+    () => this.cache.get<BoardResponseDto>(queryKeys.boardDetail(this.boardId())) ?? null,
+  );
   protected readonly columns = computed(() =>
     [...(this.board()?.columns ?? [])].sort((a, b) => a.order - b.order),
   );
@@ -95,7 +100,7 @@ export class BoardDetailPage {
 
     try {
       const freshBoard = await this.store.detail(currentBoard.id, true);
-      this.setBoard(freshBoard);
+      this.syncActiveColumn(freshBoard);
       await firstValueFrom(
         this.dialog.open(BoardMembersDialog, {
           ariaLabelledBy: 'board-members-title',
@@ -103,9 +108,8 @@ export class BoardDetailPage {
         }).closed,
       );
 
-      this.setBoard(await this.store.detail(freshBoard.id));
+      this.syncActiveColumn(await this.store.detail(freshBoard.id));
     } catch (error) {
-      this.board.set(null);
       this.errorKey.set(this.store.errorFor(error));
     }
   }
@@ -214,18 +218,16 @@ export class BoardDetailPage {
         });
         return;
       }
-      this.setBoard(board);
+      this.syncActiveColumn(board);
     } catch (error) {
       if (epoch !== this.loadEpoch) return;
-      this.board.set(null);
       this.errorKey.set(this.store.errorFor(error));
     } finally {
       if (epoch === this.loadEpoch) this.loading.set(false);
     }
   }
 
-  private setBoard(board: BoardResponseDto): void {
-    this.board.set(board);
+  private syncActiveColumn(board: BoardResponseDto): void {
     const columns = [...(board.columns ?? [])].sort((a, b) => a.order - b.order);
     if (!columns.some((column) => column.id === this.activeColumnId())) {
       this.activeColumnId.set(columns[0]?.id ?? '');
@@ -234,7 +236,7 @@ export class BoardDetailPage {
 
   private async applyMutation(mutation: Promise<BoardResponseDto>): Promise<void> {
     try {
-      this.setBoard(await mutation);
+      this.syncActiveColumn(await mutation);
     } catch {}
   }
 
@@ -254,6 +256,6 @@ export class BoardDetailPage {
         data,
       }).closed,
     );
-    if (result) this.setBoard(result);
+    if (result) this.syncActiveColumn(result);
   }
 }

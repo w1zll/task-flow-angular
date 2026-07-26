@@ -14,11 +14,7 @@
 }
 
 .brand__mark {
-  @apply grid size-9 place-items-center rounded-control bg-primary text-white shadow-sm;
-}
-
-.brand__mark svg {
-  @apply size-6 fill-none stroke-current stroke-[2.4];
+  @apply size-9 shrink-0 rounded-control shadow-sm;
 }
 
 .header__actions {

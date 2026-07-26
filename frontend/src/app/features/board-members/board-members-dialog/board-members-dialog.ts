@@ -15,6 +15,8 @@ import {
   BoardResponseDto,
   WorkspaceMemberResponseDto,
 } from '@core/api/generated';
+import { QueryCacheStore } from '@core/cache/query-cache.store';
+import { queryKeys } from '@core/cache/query-key';
 import { BoardMembersStore } from '@features/board-members/board-members.store';
 import { AppButton } from '@shared/ui/app-button/app-button';
 import { LoadingSkeleton } from '@shared/ui/loading-skeleton/loading-skeleton';
@@ -32,10 +34,17 @@ export class BoardMembersDialog implements OnInit {
   protected readonly board = inject<BoardResponseDto>(DIALOG_DATA);
   private readonly dialogRef = inject(DialogRef<readonly BoardMemberResponseDto[]>);
   private readonly formBuilder = inject(FormBuilder);
+  private readonly cache = inject(QueryCacheStore);
   protected readonly store = inject(BoardMembersStore);
 
-  protected readonly members = signal<readonly BoardMemberResponseDto[]>([]);
-  protected readonly workspaceMembers = signal<readonly WorkspaceMemberResponseDto[]>([]);
+  private readonly membersQuery = this.cache.entry<readonly BoardMemberResponseDto[]>(
+    queryKeys.boardMembers(this.board.id),
+  );
+  private readonly workspaceMembersQuery = this.cache.entry<readonly WorkspaceMemberResponseDto[]>(
+    queryKeys.workspaceMembers(this.board.workspaceId),
+  );
+  protected readonly members = computed(() => this.membersQuery()?.data ?? []);
+  protected readonly workspaceMembers = computed(() => this.workspaceMembersQuery()?.data ?? []);
   protected readonly loading = signal(true);
   protected readonly loadError = signal(false);
   protected readonly confirmRemoveId = signal<string | null>(null);
@@ -68,11 +77,7 @@ export class BoardMembersDialog implements OnInit {
 
     const value = this.addForm.getRawValue();
     try {
-      const member = await this.store.add(this.board.id, value.userId, value.role);
-      this.members.update((members) => [
-        ...members.filter((item) => item.userId !== member.userId),
-        member,
-      ]);
+      await this.store.add(this.board.id, value.userId, value.role);
       this.addForm.reset({ userId: '', role: 'editor' });
     } catch {}
   }
@@ -86,10 +91,7 @@ export class BoardMembersDialog implements OnInit {
 
     this.store.clearError();
     try {
-      const updated = await this.store.updateRole(this.board.id, memberId, role);
-      this.members.update((members) =>
-        members.map((item) => (item.id === memberId ? updated : item)),
-      );
+      await this.store.updateRole(this.board.id, memberId, role);
     } catch {}
   }
 
@@ -108,7 +110,6 @@ export class BoardMembersDialog implements OnInit {
     this.store.clearError();
     try {
       await this.store.remove(this.board.id, memberId);
-      this.members.update((members) => members.filter((item) => item.id !== memberId));
       this.confirmRemoveId.set(null);
     } catch {}
   }
@@ -127,9 +128,7 @@ export class BoardMembersDialog implements OnInit {
     this.store.clearError();
 
     try {
-      const result = await this.store.load(this.board.id, this.board.workspaceId, force);
-      this.members.set(result.members);
-      this.workspaceMembers.set(result.workspaceMembers);
+      await this.store.load(this.board.id, this.board.workspaceId, force);
     } catch {
       this.loadError.set(true);
     } finally {

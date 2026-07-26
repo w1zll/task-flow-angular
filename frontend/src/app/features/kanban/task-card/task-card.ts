@@ -19,6 +19,7 @@ export class TaskCard {
   readonly count = input.required<number>();
   readonly canEdit = input(false);
   readonly busy = input(false);
+  readonly pending = input(false);
 
   readonly edit = output<void>();
   readonly remove = output<void>();

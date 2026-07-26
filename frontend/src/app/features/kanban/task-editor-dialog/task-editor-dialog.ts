@@ -85,11 +85,11 @@ export class TaskEditorDialog {
     };
 
     try {
-      let board: BoardResponseDto;
+      let mutation: Promise<BoardResponseDto>;
       if (this.data.task) {
         const update: UpdateTaskDto = common;
         if (value.assigneeId) update.assigneeId = value.assigneeId;
-        board = await this.store.updateTask(this.data.board.id, this.data.task.id, update);
+        mutation = this.store.updateTask(this.data.board.id, this.data.task.id, update);
       } else {
         const create: CreateTaskDto = {
           ...common,
@@ -99,9 +99,10 @@ export class TaskEditorDialog {
               ?.length ?? 0,
         };
         if (value.assigneeId) create.assigneeId = value.assigneeId;
-        board = await this.store.createTask(this.data.board.id, create);
+        mutation = this.store.createTask(this.data.board.id, create);
       }
-      this.dialogRef.close(board);
+      this.dialogRef.close();
+      await mutation;
     } catch {}
   }
 

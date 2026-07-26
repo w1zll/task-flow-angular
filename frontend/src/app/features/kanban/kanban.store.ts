@@ -2,14 +2,17 @@ import { Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 
 import { ApiError } from '@core/api/api-error';
+import { ColumnsApi } from '@core/api/clients/columns-api';
+import { TasksApi } from '@core/api/clients/tasks-api';
 import {
   BoardResponseDto,
+  ColumnResponseDto,
   CreateTaskDto,
   TaskResponseDto,
   UpdateTaskDto,
 } from '@core/api/generated';
-import { ColumnsApi } from '@core/api/clients/columns-api';
-import { TasksApi } from '@core/api/clients/tasks-api';
+import { OptimisticTransaction, QueryCacheStore } from '@core/cache/query-cache.store';
+import { queryKeys } from '@core/cache/query-key';
 import { BoardCatalogStore } from '@features/boards/board-catalog.store';
 
 export type MoveDirection = 'backward' | 'forward';
@@ -26,9 +29,99 @@ const mutationErrorKey = (error: unknown): string => {
   return 'kanban.errors.unknown';
 };
 
+const shouldReloadBoard = (error: unknown): boolean =>
+  error instanceof ApiError &&
+  (error.kind === 'network' ||
+    error.kind === 'server' ||
+    error.kind === 'unexpected-response' ||
+    error.kind === 'conflict');
+
+const sortColumns = (columns: readonly ColumnResponseDto[]): ColumnResponseDto[] =>
+  [...columns]
+    .sort((left, right) => left.order - right.order)
+    .map((column, order) => ({ ...column, order }));
+
+const sortTasks = (tasks: readonly TaskResponseDto[]): TaskResponseDto[] =>
+  [...tasks]
+    .sort((left, right) => left.order - right.order)
+    .map((task, order) => ({ ...task, order }));
+
+const updateBoardTask = (
+  board: BoardResponseDto,
+  taskId: string,
+  updater: (task: TaskResponseDto) => TaskResponseDto,
+): BoardResponseDto => ({
+  ...board,
+  columns: (board.columns ?? []).map((column) => ({
+    ...column,
+    tasks: (column.tasks ?? []).map((task) => (task.id === taskId ? updater(task) : task)),
+  })),
+});
+
+const removeBoardTask = (board: BoardResponseDto, taskId: string): BoardResponseDto => ({
+  ...board,
+  columns: (board.columns ?? []).map((column) => ({
+    ...column,
+    tasks: sortTasks((column.tasks ?? []).filter((task) => task.id !== taskId)),
+  })),
+});
+
+const upsertBoardTask = (
+  board: BoardResponseDto,
+  task: TaskResponseDto,
+  replacedId = task.id,
+): BoardResponseDto => {
+  const withoutTask = removeBoardTask(removeBoardTask(board, replacedId), task.id);
+
+  return {
+    ...withoutTask,
+    columns: (withoutTask.columns ?? []).map((column) =>
+      column.id === task.columnId
+        ? { ...column, tasks: sortTasks([...(column.tasks ?? []), task]) }
+        : column,
+    ),
+  };
+};
+
+const moveBoardTask = (
+  board: BoardResponseDto,
+  taskId: string,
+  columnId: string,
+  order: number,
+): BoardResponseDto => {
+  const task = (board.columns ?? [])
+    .flatMap((column) => column.tasks ?? [])
+    .find((candidate) => candidate.id === taskId);
+  if (!task) return board;
+
+  return upsertBoardTask(board, { ...task, columnId, order });
+};
+
+const reorderBoardTasks = (
+  board: BoardResponseDto,
+  columnId: string,
+  taskIds: readonly string[],
+): BoardResponseDto => ({
+  ...board,
+  columns: (board.columns ?? []).map((column) => {
+    if (column.id !== columnId) return column;
+    const byId = new Map((column.tasks ?? []).map((task) => [task.id, task]));
+    return {
+      ...column,
+      tasks: taskIds
+        .map((id, order) => {
+          const task = byId.get(id);
+          return task ? { ...task, order } : null;
+        })
+        .filter((task): task is TaskResponseDto => task !== null),
+    };
+  }),
+});
+
 @Injectable({ providedIn: 'root' })
 export class KanbanStore {
   private readonly boards = inject(BoardCatalogStore);
+  private readonly cache = inject(QueryCacheStore);
   private readonly columnsApi = inject(ColumnsApi);
   private readonly tasksApi = inject(TasksApi);
 
@@ -36,8 +129,12 @@ export class KanbanStore {
   readonly errorKey = signal<string | null>(null);
 
   async createColumn(board: BoardResponseDto, title: string): Promise<BoardResponseDto> {
-    return this.mutate('column:create', board.id, async () => {
-      await firstValueFrom(
+    const transaction = this.begin(board.id, `column:${title}`, (current) => current);
+    this.busyId.set('column:create');
+    this.errorKey.set(null);
+
+    try {
+      const created = await firstValueFrom(
         this.columnsApi.create({
           body: {
             boardId: board.id,
@@ -46,19 +143,67 @@ export class KanbanStore {
           },
         }),
       );
-    });
+      this.reconcile(transaction, board.id, (current) => ({
+        ...current,
+        columns: sortColumns([
+          ...(current.columns ?? []).filter((column) => column.id !== created.id),
+          created,
+        ]),
+      }));
+      return this.currentBoard(board.id, board);
+    } catch (error) {
+      return this.fail(transaction, board.id, error);
+    } finally {
+      this.busyId.set(null);
+    }
   }
 
   async renameColumn(boardId: string, columnId: string, title: string): Promise<BoardResponseDto> {
-    return this.mutate(columnId, boardId, async () => {
-      await firstValueFrom(this.columnsApi.update({ id: columnId, body: { title } }));
-    });
+    const transaction = this.begin(boardId, columnId, (board) => ({
+      ...board,
+      columns: (board.columns ?? []).map((column) =>
+        column.id === columnId ? { ...column, title } : column,
+      ),
+    }));
+    this.start(columnId);
+
+    try {
+      const updated = await firstValueFrom(
+        this.columnsApi.update({ id: columnId, body: { title } }),
+      );
+      this.reconcile(transaction, boardId, (board) => ({
+        ...board,
+        columns: (board.columns ?? []).map((column) =>
+          column.id === columnId
+            ? { ...column, ...updated, tasks: updated.tasks ?? column.tasks }
+            : column,
+        ),
+      }));
+      return this.currentBoard(boardId);
+    } catch (error) {
+      return this.fail(transaction, boardId, error);
+    } finally {
+      this.busyId.set(null);
+    }
   }
 
   async removeColumn(boardId: string, columnId: string): Promise<BoardResponseDto> {
-    return this.mutate(columnId, boardId, async () => {
+    const transaction = this.begin(boardId, columnId, (board) => ({
+      ...board,
+      columns: sortColumns((board.columns ?? []).filter((column) => column.id !== columnId)),
+    }));
+    this.start(columnId);
+
+    try {
       await firstValueFrom(this.columnsApi.remove({ id: columnId }));
-    });
+      transaction.commit();
+      this.cache.invalidate(queryKeys.boardsCatalog);
+      return this.currentBoard(boardId);
+    } catch (error) {
+      return this.fail(transaction, boardId, error);
+    } finally {
+      this.busyId.set(null);
+    }
   }
 
   async moveColumn(
@@ -66,27 +211,65 @@ export class KanbanStore {
     columnId: string,
     direction: MoveDirection,
   ): Promise<BoardResponseDto> {
-    const columns = [...(board.columns ?? [])].sort((a, b) => a.order - b.order);
+    const columns = sortColumns(board.columns ?? []);
     const index = columns.findIndex((column) => column.id === columnId);
     const targetIndex = direction === 'backward' ? index - 1 : index + 1;
     if (index < 0 || targetIndex < 0 || targetIndex >= columns.length) return board;
 
     [columns[index], columns[targetIndex]] = [columns[targetIndex], columns[index]];
+    const columnIds = columns.map((column) => column.id);
+    const transaction = this.begin(board.id, columnId, (current) => ({
+      ...current,
+      columns: reorderColumns(current.columns ?? [], columnIds),
+    }));
+    this.start(columnId);
 
-    return this.mutate(columnId, board.id, async () => {
+    try {
       await firstValueFrom(
         this.columnsApi.reorder({
           boardId: board.id,
-          body: { columnIds: columns.map((column) => column.id) },
+          body: { columnIds },
         }),
       );
-    });
+      transaction.commit();
+      this.cache.invalidate(queryKeys.boardsCatalog);
+      return this.currentBoard(board.id, board);
+    } catch (error) {
+      return this.fail(transaction, board.id, error);
+    } finally {
+      this.busyId.set(null);
+    }
   }
 
   async createTask(boardId: string, data: CreateTaskDto): Promise<BoardResponseDto> {
-    return this.mutate('task:create', boardId, async () => {
-      await firstValueFrom(this.tasksApi.create({ body: data }));
-    });
+    const board = this.currentBoard(boardId);
+    const now = new Date().toISOString();
+    const temporaryId = `optimistic:${globalThis.crypto?.randomUUID?.() ?? Date.now()}`;
+    const assignee = board.members?.find((member) => member.userId === data.assigneeId)?.user;
+    const temporaryTask: TaskResponseDto = {
+      ...data,
+      id: temporaryId,
+      createdAt: now,
+      updatedAt: now,
+      order: data.order ?? 0,
+      assignee,
+    };
+    const transaction = this.begin(boardId, temporaryId, (current) =>
+      upsertBoardTask(current, temporaryTask),
+    );
+    this.start(temporaryId);
+
+    try {
+      const created = await firstValueFrom(this.tasksApi.create({ body: data }));
+      this.reconcile(transaction, boardId, (current) =>
+        upsertBoardTask(current, created, temporaryId),
+      );
+      return this.currentBoard(boardId, board);
+    } catch (error) {
+      return this.fail(transaction, boardId, error);
+    } finally {
+      this.busyId.set(null);
+    }
   }
 
   async updateTask(
@@ -94,15 +277,36 @@ export class KanbanStore {
     taskId: string,
     data: UpdateTaskDto,
   ): Promise<BoardResponseDto> {
-    return this.mutate(taskId, boardId, async () => {
-      await firstValueFrom(this.tasksApi.update({ id: taskId, body: data }));
-    });
+    const transaction = this.begin(boardId, taskId, (board) =>
+      updateBoardTask(board, taskId, (task) => ({ ...task, ...data })),
+    );
+    this.start(taskId);
+
+    try {
+      const updated = await firstValueFrom(this.tasksApi.update({ id: taskId, body: data }));
+      this.reconcile(transaction, boardId, (board) => upsertBoardTask(board, updated));
+      return this.currentBoard(boardId);
+    } catch (error) {
+      return this.fail(transaction, boardId, error);
+    } finally {
+      this.busyId.set(null);
+    }
   }
 
   async removeTask(boardId: string, taskId: string): Promise<BoardResponseDto> {
-    return this.mutate(taskId, boardId, async () => {
+    const transaction = this.begin(boardId, taskId, (board) => removeBoardTask(board, taskId));
+    this.start(taskId);
+
+    try {
       await firstValueFrom(this.tasksApi.remove({ id: taskId }));
-    });
+      transaction.commit();
+      this.cache.invalidate(queryKeys.boardsCatalog);
+      return this.currentBoard(boardId);
+    } catch (error) {
+      return this.fail(transaction, boardId, error);
+    } finally {
+      this.busyId.set(null);
+    }
   }
 
   async moveTask(
@@ -113,15 +317,25 @@ export class KanbanStore {
     if (targetColumnId === task.columnId) return board;
     const targetColumn = board.columns?.find((column) => column.id === targetColumnId);
     const order = targetColumn?.tasks?.length ?? 0;
+    const transaction = this.begin(board.id, task.id, (current) =>
+      moveBoardTask(current, task.id, targetColumnId, order),
+    );
+    this.start(task.id);
 
-    return this.mutate(task.id, board.id, async () => {
-      await firstValueFrom(
+    try {
+      const moved = await firstValueFrom(
         this.tasksApi.move({
           id: task.id,
           body: { columnId: targetColumnId, order },
         }),
       );
-    });
+      this.reconcile(transaction, board.id, (current) => upsertBoardTask(current, moved));
+      return this.currentBoard(board.id, board);
+    } catch (error) {
+      return this.fail(transaction, board.id, error);
+    } finally {
+      this.busyId.set(null);
+    }
   }
 
   async reorderTask(
@@ -132,42 +346,104 @@ export class KanbanStore {
     const column = board.columns?.find((item) => item.id === task.columnId);
     if (!column) return board;
 
-    const tasks = [...(column.tasks ?? [])].sort((a, b) => a.order - b.order);
+    const tasks = sortTasks(column.tasks ?? []);
     const index = tasks.findIndex((item) => item.id === task.id);
     const targetIndex = direction === 'backward' ? index - 1 : index + 1;
     if (index < 0 || targetIndex < 0 || targetIndex >= tasks.length) return board;
 
     [tasks[index], tasks[targetIndex]] = [tasks[targetIndex], tasks[index]];
+    const taskIds = tasks.map((item) => item.id);
+    const transaction = this.begin(board.id, task.id, (current) =>
+      reorderBoardTasks(current, column.id, taskIds),
+    );
+    this.start(task.id);
 
-    return this.mutate(task.id, board.id, async () => {
+    try {
       await firstValueFrom(
         this.tasksApi.reorder({
           columnId: column.id,
-          body: { taskIds: tasks.map((item) => item.id) },
+          body: { taskIds },
         }),
       );
-    });
+      transaction.commit();
+      this.cache.invalidate(queryKeys.boardsCatalog);
+      return this.currentBoard(board.id, board);
+    } catch (error) {
+      return this.fail(transaction, board.id, error);
+    } finally {
+      this.busyId.set(null);
+    }
   }
 
   clearError(): void {
     this.errorKey.set(null);
   }
 
-  private async mutate(
-    busyId: string,
-    boardId: string,
-    mutation: () => Promise<void>,
-  ): Promise<BoardResponseDto> {
+  private start(busyId: string): void {
     this.busyId.set(busyId);
     this.errorKey.set(null);
-    try {
-      await mutation();
-      return await this.boards.detail(boardId, true);
-    } catch (error) {
-      this.errorKey.set(mutationErrorKey(error));
-      throw error;
-    } finally {
-      this.busyId.set(null);
+  }
+
+  private begin(
+    boardId: string,
+    entityId: string,
+    updater: (board: BoardResponseDto) => BoardResponseDto,
+  ): OptimisticTransaction {
+    const transaction = this.cache.optimisticTransaction(entityId);
+    transaction.update<BoardResponseDto>(queryKeys.boardDetail(boardId), (board) =>
+      updater(board ?? this.currentBoard(boardId)),
+    );
+    if (this.cache.get<readonly BoardResponseDto[]>(queryKeys.boardsCatalog)) {
+      transaction.update<readonly BoardResponseDto[]>(queryKeys.boardsCatalog, (boards = []) =>
+        boards.map((board) => (board.id === boardId ? updater(board) : board)),
+      );
     }
+    return transaction;
+  }
+
+  private reconcile(
+    transaction: OptimisticTransaction,
+    boardId: string,
+    updater: (board: BoardResponseDto) => BoardResponseDto,
+  ): void {
+    if (!transaction.isActive()) return;
+    transaction.reconcile<BoardResponseDto>(queryKeys.boardDetail(boardId), (board) =>
+      updater(board ?? this.currentBoard(boardId)),
+    );
+    if (this.cache.get<readonly BoardResponseDto[]>(queryKeys.boardsCatalog)) {
+      transaction.reconcile<readonly BoardResponseDto[]>(queryKeys.boardsCatalog, (boards = []) =>
+        boards.map((board) => (board.id === boardId ? updater(board) : board)),
+      );
+    }
+    transaction.commit();
+    this.cache.invalidate(queryKeys.boardsCatalog);
+  }
+
+  private currentBoard(boardId: string, fallback?: BoardResponseDto): BoardResponseDto {
+    const board = this.cache.get<BoardResponseDto>(queryKeys.boardDetail(boardId)) ?? fallback;
+    if (!board) throw new Error(`Board ${boardId} is not cached`);
+    return board;
+  }
+
+  private fail(transaction: OptimisticTransaction, boardId: string, error: unknown): never {
+    transaction.rollback();
+    this.errorKey.set(mutationErrorKey(error));
+    if (shouldReloadBoard(error)) {
+      void this.boards.detail(boardId, true).catch(() => undefined);
+    }
+    throw error;
   }
 }
+
+const reorderColumns = (
+  columns: readonly ColumnResponseDto[],
+  columnIds: readonly string[],
+): ColumnResponseDto[] => {
+  const byId = new Map(columns.map((column) => [column.id, column]));
+  return columnIds
+    .map((id, order) => {
+      const column = byId.get(id);
+      return column ? { ...column, order } : null;
+    })
+    .filter((column): column is ColumnResponseDto => column !== null);
+};

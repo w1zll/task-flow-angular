@@ -39,11 +39,12 @@ export class DeleteConfirmDialog {
   protected async confirm(): Promise<void> {
     this.store.clearError();
     try {
-      const board =
+      const mutation =
         this.data.kind === 'column'
-          ? await this.store.removeColumn(this.data.board.id, this.data.column.id)
-          : await this.store.removeTask(this.data.board.id, this.data.task.id);
-      this.dialogRef.close(board);
+          ? this.store.removeColumn(this.data.board.id, this.data.column.id)
+          : this.store.removeTask(this.data.board.id, this.data.task.id);
+      this.dialogRef.close();
+      await mutation;
     } catch {}
   }
 

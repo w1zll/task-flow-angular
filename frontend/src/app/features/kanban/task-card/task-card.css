@@ -4,6 +4,15 @@
   @apply overflow-hidden rounded-xl border border-border bg-surface shadow-sm;
 }
 
+.task-card--pending {
+  opacity: 0.72;
+}
+
+.task-card__pending {
+  color: var(--tf-text-muted);
+  font-size: 0.75rem;
+}
+
 .task-card--completed {
   @apply opacity-70;
 }
