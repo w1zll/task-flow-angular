@@ -1,0 +1,69 @@
+<section class="kanban-column">
+  <header>
+    <div>
+      <h3>{{ column().title }}</h3>
+      <span>{{ 'kanban.column.taskCount' | transloco: { count: tasks().length } }}</span>
+    </div>
+    @if (canManageColumns()) {
+      <div class="kanban-column__order">
+        <app-button
+          variant="ghost"
+          [disabled]="busyId() !== null || index() === 0"
+          (pressed)="moveColumn.emit('backward')"
+        >
+          {{ 'kanban.column.left' | transloco }}
+        </app-button>
+        <app-button
+          variant="ghost"
+          [disabled]="busyId() !== null || index() === columns().length - 1"
+          (pressed)="moveColumn.emit('forward')"
+        >
+          {{ 'kanban.column.right' | transloco }}
+        </app-button>
+      </div>
+    }
+  </header>
+
+  @if (canEditTasks() || canManageColumns()) {
+    <div class="kanban-column__toolbar">
+      @if (canEditTasks()) {
+        <app-button
+          variant="secondary"
+          [disabled]="busyId() !== null"
+          (pressed)="createTask.emit()"
+        >
+          {{ 'kanban.task.create.action' | transloco }}
+        </app-button>
+      }
+      @if (canManageColumns()) {
+        <app-button variant="ghost" [disabled]="busyId() !== null" (pressed)="rename.emit()">
+          {{ 'kanban.column.rename.action' | transloco }}
+        </app-button>
+        <app-button variant="danger" [disabled]="busyId() !== null" (pressed)="remove.emit()">
+          {{ 'kanban.column.delete.action' | transloco }}
+        </app-button>
+      }
+    </div>
+  }
+
+  <div class="kanban-column__tasks">
+    @for (task of tasks(); track task.id; let taskIndex = $index) {
+      <app-task-card
+        [task]="task"
+        [columns]="columns()"
+        [index]="taskIndex"
+        [count]="tasks().length"
+        [canEdit]="canEditTasks()"
+        [busy]="busyId() !== null"
+        (edit)="editTask.emit(task)"
+        (remove)="removeTask.emit(task)"
+        (toggleCompleted)="toggleTask.emit(task)"
+        (moveColumn)="moveTask.emit({ task, columnId: $event })"
+        (moveUp)="reorderTask.emit({ task, direction: 'backward' })"
+        (moveDown)="reorderTask.emit({ task, direction: 'forward' })"
+      />
+    } @empty {
+      <p class="kanban-column__empty">{{ 'kanban.column.empty' | transloco }}</p>
+    }
+  </div>
+</section>

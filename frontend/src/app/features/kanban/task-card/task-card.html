@@ -1,0 +1,57 @@
+<article class="task-card" [class.task-card--completed]="task().isCompleted">
+  <button class="task-card__body" type="button" (click)="edit.emit()">
+    <span class="task-card__priority" [attr.data-priority]="task().priority">
+      {{ 'kanban.priority.' + task().priority | transloco }}
+    </span>
+    <strong>{{ task().title }}</strong>
+    @if (task().description) {
+      <p>{{ task().description }}</p>
+    }
+    @if (task().labels?.length) {
+      <span class="task-card__labels">
+        @for (label of task().labels; track label) {
+          <span>{{ label }}</span>
+        }
+      </span>
+    }
+    <span class="task-card__meta">
+      @if (task().dueDate) {
+        <span>{{ 'kanban.task.due' | transloco }}: {{ task().dueDate | localizedDate }}</span>
+      }
+      @if (task().assignee?.name || task().assigneeName) {
+        <span>{{ task().assignee?.name || task().assigneeName }}</span>
+      }
+    </span>
+  </button>
+
+  @if (canEdit()) {
+    <div class="task-card__actions">
+      <app-button variant="ghost" [disabled]="busy()" (pressed)="toggleCompleted.emit()">
+        {{ (task().isCompleted ? 'kanban.task.reopen' : 'kanban.task.complete') | transloco }}
+      </app-button>
+      <app-button variant="ghost" [disabled]="busy() || index() === 0" (pressed)="moveUp.emit()">
+        {{ 'kanban.task.up' | transloco }}
+      </app-button>
+      <app-button
+        variant="ghost"
+        [disabled]="busy() || index() === count() - 1"
+        (pressed)="moveDown.emit()"
+      >
+        {{ 'kanban.task.down' | transloco }}
+      </app-button>
+      <label>
+        <span>{{ 'kanban.task.moveTo' | transloco }}</span>
+        <select [value]="task().columnId" [disabled]="busy()" (change)="selectColumn($event)">
+          @for (column of columns(); track column.id) {
+            <option [value]="column.id" [selected]="column.id === task().columnId">
+              {{ column.title }}
+            </option>
+          }
+        </select>
+      </label>
+      <app-button variant="danger" [disabled]="busy()" (pressed)="remove.emit()">
+        {{ 'kanban.task.delete.action' | transloco }}
+      </app-button>
+    </div>
+  }
+</article>

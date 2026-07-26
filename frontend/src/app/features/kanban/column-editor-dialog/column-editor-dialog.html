@@ -1,0 +1,34 @@
+<section class="dialog">
+  <h2 id="column-editor-title">
+    {{ (isCreate ? 'kanban.column.create.title' : 'kanban.column.rename.title') | transloco }}
+  </h2>
+  <p>
+    {{
+      (isCreate ? 'kanban.column.create.description' : 'kanban.column.rename.description')
+        | transloco
+    }}
+  </p>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <label class="field">
+      <span>{{ 'kanban.column.field' | transloco }}</span>
+      <input type="text" formControlName="title" maxlength="200" autofocus />
+      @if (form.controls.title.touched && form.controls.title.invalid) {
+        <small>{{ 'kanban.column.validation' | transloco }}</small>
+      }
+    </label>
+
+    @if (store.errorKey(); as errorKey) {
+      <p class="dialog__error" role="alert">{{ errorKey | transloco }}</p>
+    }
+
+    <div class="dialog__actions">
+      <app-button type="button" variant="secondary" [disabled]="busy()" (pressed)="close()">
+        {{ 'actions.cancel' | transloco }}
+      </app-button>
+      <app-button type="submit" [loading]="busy()" [disabled]="busy()">
+        {{ (isCreate ? 'kanban.column.create.submit' : 'kanban.column.rename.submit') | transloco }}
+      </app-button>
+    </div>
+  </form>
+</section>

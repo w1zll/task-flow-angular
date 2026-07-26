@@ -116,8 +116,7 @@
   }
 
   .shell__mobile-bar {
-    @apply sticky z-20 flex min-h-14 items-center gap-3 border-b border-border bg-surface px-4;
-    top: var(--tf-header-height);
+    @apply sticky top-0 z-20 flex min-h-14 items-center gap-3 border-b border-border bg-surface px-4;
   }
 
   .shell__mobile-bar strong {

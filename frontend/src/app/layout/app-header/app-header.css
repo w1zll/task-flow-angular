@@ -62,6 +62,12 @@ button.auth-link {
   @apply sr-only;
 }
 
+@media (max-width: 767px) {
+  .header {
+    @apply static;
+  }
+}
+
 @media (max-width: 639px) {
   .header__inner {
     @apply flex-wrap;

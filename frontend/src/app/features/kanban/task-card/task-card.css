@@ -1,0 +1,66 @@
+@reference "#app.css";
+
+.task-card {
+  @apply overflow-hidden rounded-xl border border-border bg-surface shadow-sm;
+}
+
+.task-card--completed {
+  @apply opacity-70;
+}
+
+.task-card__body {
+  @apply grid w-full cursor-pointer gap-2 p-3 text-left text-foreground transition-colors hover:bg-surface-muted;
+}
+
+.task-card__body strong {
+  @apply break-words text-sm leading-5;
+}
+
+.task-card--completed .task-card__body strong {
+  @apply line-through;
+}
+
+.task-card__body p {
+  @apply line-clamp-3 break-words text-xs leading-5 text-muted;
+}
+
+.task-card__priority {
+  @apply w-fit rounded-full px-2 py-0.5 text-[0.68rem] font-bold uppercase tracking-wide;
+}
+
+.task-card__priority[data-priority='low'] {
+  @apply bg-primary/10 text-primary;
+}
+
+.task-card__priority[data-priority='medium'] {
+  @apply bg-warning/15 text-warning;
+}
+
+.task-card__priority[data-priority='high'],
+.task-card__priority[data-priority='urgent'] {
+  @apply bg-danger/10 text-danger;
+}
+
+.task-card__labels {
+  @apply flex flex-wrap gap-1;
+}
+
+.task-card__labels > span {
+  @apply max-w-full truncate rounded-full bg-surface-muted px-2 py-0.5 text-xs text-muted;
+}
+
+.task-card__meta {
+  @apply flex flex-wrap justify-between gap-2 text-xs text-muted;
+}
+
+.task-card__actions {
+  @apply grid gap-1 border-t border-border p-2;
+}
+
+.task-card__actions label {
+  @apply grid gap-1 px-2 py-1 text-xs font-semibold text-muted;
+}
+
+.task-card__actions select {
+  @apply min-h-9 w-full rounded-control border border-border bg-canvas px-2 text-sm text-foreground;
+}

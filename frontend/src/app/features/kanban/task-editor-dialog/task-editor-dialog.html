@@ -1,0 +1,100 @@
+<section class="dialog">
+  <header>
+    <div>
+      <h2 id="task-editor-title">
+        {{
+          (isCreate
+            ? 'kanban.task.create.title'
+            : data.canEdit
+              ? 'kanban.task.edit.title'
+              : 'kanban.task.details.title'
+          ) | transloco
+        }}
+      </h2>
+      <p>
+        {{
+          (isCreate
+            ? 'kanban.task.create.description'
+            : data.canEdit
+              ? 'kanban.task.edit.description'
+              : 'kanban.task.details.description'
+          ) | transloco
+        }}
+      </p>
+    </div>
+    <app-button variant="ghost" (pressed)="close()">{{ 'actions.close' | transloco }}</app-button>
+  </header>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <fieldset [disabled]="!data.canEdit || busy()">
+      <label class="field field--wide">
+        <span>{{ 'kanban.task.fields.title' | transloco }}</span>
+        <input type="text" formControlName="title" maxlength="500" autofocus />
+        @if (form.controls.title.touched && form.controls.title.invalid) {
+          <small>{{ 'kanban.task.validation.title' | transloco }}</small>
+        }
+      </label>
+
+      <label class="field field--wide">
+        <span>{{ 'kanban.task.fields.description' | transloco }}</span>
+        <textarea formControlName="description" rows="5"></textarea>
+      </label>
+
+      <label class="field">
+        <span>{{ 'kanban.task.fields.priority' | transloco }}</span>
+        <select formControlName="priority">
+          <option value="low">{{ 'kanban.priority.low' | transloco }}</option>
+          <option value="medium">{{ 'kanban.priority.medium' | transloco }}</option>
+          <option value="high">{{ 'kanban.priority.high' | transloco }}</option>
+          <option value="urgent">{{ 'kanban.priority.urgent' | transloco }}</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>{{ 'kanban.task.fields.dueDate' | transloco }}</span>
+        <input type="date" formControlName="dueDate" />
+      </label>
+
+      <label class="field field--wide">
+        <span>{{ 'kanban.task.fields.labels' | transloco }}</span>
+        <input
+          type="text"
+          formControlName="labels"
+          [placeholder]="'kanban.task.fields.labelsHint' | transloco"
+        />
+      </label>
+
+      <label class="field">
+        <span>{{ 'kanban.task.fields.assignee' | transloco }}</span>
+        <select formControlName="assigneeId">
+          <option value="" [disabled]="!!data.task?.assigneeId">
+            {{ 'kanban.task.fields.noAssignee' | transloco }}
+          </option>
+          @for (member of members; track member.userId) {
+            <option [value]="member.userId">{{ member.user.name }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="checkbox-field">
+        <input type="checkbox" formControlName="isCompleted" />
+        <span>{{ 'kanban.task.fields.completed' | transloco }}</span>
+      </label>
+    </fieldset>
+
+    @if (store.errorKey(); as errorKey) {
+      <p class="dialog__error" role="alert">{{ errorKey | transloco }}</p>
+    }
+
+    <div class="dialog__actions">
+      <app-button type="button" variant="secondary" [disabled]="busy()" (pressed)="close()">
+        {{ (data.canEdit ? 'actions.cancel' : 'actions.close') | transloco }}
+      </app-button>
+      @if (data.canEdit) {
+        <app-button type="submit" [loading]="busy()" [disabled]="busy()">
+          {{ (isCreate ? 'kanban.task.create.submit' : 'kanban.task.edit.submit') | transloco }}
+        </app-button>
+      }
+    </div>
+  </form>
+</section>

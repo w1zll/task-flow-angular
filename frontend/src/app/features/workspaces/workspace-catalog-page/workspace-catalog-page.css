@@ -34,7 +34,7 @@
 }
 
 .workspace-card__open {
-  @apply flex w-full cursor-pointer items-start gap-3 border-0 bg-transparent p-5 text-left text-foreground;
+  @apply flex w-full cursor-pointer items-start gap-3 border-0 bg-transparent p-5 text-left text-foreground transition-colors hover:bg-surface-muted;
 }
 
 .workspace-card__mark {

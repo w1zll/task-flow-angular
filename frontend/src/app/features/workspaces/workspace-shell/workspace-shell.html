@@ -28,7 +28,7 @@
         type="button"
         [attr.aria-expanded]="drawerOpen()"
         aria-controls="workspace-navigation"
-        (click)="toggleDrawer()"
+        (click)="toggleDrawer($event)"
       >
         <span aria-hidden="true">☰</span>
         {{ 'workspaces.navigation.menu' | transloco }}
@@ -40,12 +40,18 @@
       <button
         class="shell__backdrop"
         type="button"
+        [style.top.px]="drawerTop()"
         [attr.aria-label]="'actions.close' | transloco"
         (click)="closeDrawer()"
       ></button>
     }
 
-    <aside id="workspace-navigation" class="sidebar" [class.sidebar--open]="drawerOpen()">
+    <aside
+      id="workspace-navigation"
+      class="sidebar"
+      [class.sidebar--open]="drawerOpen()"
+      [style.top.px]="drawerTop()"
+    >
       <div class="sidebar__heading">
         <a class="sidebar__catalog-link" routerLink="/workspaces" (click)="closeDrawer()">
           {{ 'workspaces.catalog.back' | transloco }}

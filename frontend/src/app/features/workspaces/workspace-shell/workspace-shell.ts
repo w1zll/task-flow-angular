@@ -1,7 +1,10 @@
+import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  OnDestroy,
   OnInit,
+  PLATFORM_ID,
   computed,
   inject,
   signal,
@@ -21,6 +24,16 @@ import { WorkspaceStore } from '@features/workspaces/workspace.store';
 import { ErrorState } from '@shared/ui/error-state/error-state';
 import { LoadingSkeleton } from '@shared/ui/loading-skeleton/loading-skeleton';
 
+interface ScrollLockSnapshot {
+  readonly bodyOverflow: string;
+  readonly bodyPaddingRight: string;
+  readonly bodyPosition: string;
+  readonly bodyTop: string;
+  readonly bodyWidth: string;
+  readonly htmlScrollBehavior: string;
+  readonly scrollY: number;
+}
+
 @Component({
   selector: 'app-workspace-shell',
   imports: [
@@ -36,9 +49,12 @@ import { LoadingSkeleton } from '@shared/ui/loading-skeleton/loading-skeleton';
   styleUrl: './workspace-shell.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class WorkspaceShell implements OnInit {
+export class WorkspaceShell implements OnDestroy, OnInit {
+  private readonly document = inject(DOCUMENT);
+  private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private scrollLockSnapshot: ScrollLockSnapshot | null = null;
   protected readonly store = inject(WorkspaceStore);
   private readonly paramMap = toSignal(this.route.paramMap, {
     initialValue: this.route.snapshot.paramMap,
@@ -50,17 +66,32 @@ export class WorkspaceShell implements OnInit {
   );
   protected readonly workspaceBoards = computed(() => this.store.boardsFor(this.workspaceId()));
   protected readonly drawerOpen = signal(false);
+  protected readonly drawerTop = signal(0);
 
   ngOnInit(): void {
     void this.initialize();
   }
 
-  protected toggleDrawer(): void {
-    this.drawerOpen.update((open) => !open);
+  ngOnDestroy(): void {
+    this.unlockPageScroll();
+  }
+
+  protected toggleDrawer(event: MouseEvent): void {
+    if (this.drawerOpen()) {
+      this.closeDrawer();
+      return;
+    }
+
+    const button = event.currentTarget as HTMLElement;
+    const mobileBar = button.closest<HTMLElement>('.shell__mobile-bar');
+    this.drawerTop.set(mobileBar?.getBoundingClientRect().bottom ?? 0);
+    this.drawerOpen.set(true);
+    this.lockPageScroll();
   }
 
   protected closeDrawer(): void {
     this.drawerOpen.set(false);
+    this.unlockPageScroll();
   }
 
   protected async selectWorkspace(workspaceId: string): Promise<void> {
@@ -88,5 +119,50 @@ export class WorkspaceShell implements OnInit {
         await this.store.switchActive(workspace.id);
       } catch {}
     }
+  }
+
+  private lockPageScroll(): void {
+    if (!this.isBrowser || this.scrollLockSnapshot) return;
+
+    const body = this.document.body;
+    const html = this.document.documentElement;
+    const scrollbarWidth = Math.max(0, window.innerWidth - html.clientWidth);
+    const bodyPaddingRight = Number.parseFloat(getComputedStyle(body).paddingRight) || 0;
+    const scrollY = window.scrollY;
+
+    this.scrollLockSnapshot = {
+      bodyOverflow: body.style.overflow,
+      bodyPaddingRight: body.style.paddingRight,
+      bodyPosition: body.style.position,
+      bodyTop: body.style.top,
+      bodyWidth: body.style.width,
+      htmlScrollBehavior: html.style.scrollBehavior,
+      scrollY,
+    };
+
+    body.style.overflow = 'hidden';
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.width = '100%';
+    if (scrollbarWidth > 0) {
+      body.style.paddingRight = `${bodyPaddingRight + scrollbarWidth}px`;
+    }
+  }
+
+  private unlockPageScroll(): void {
+    if (!this.isBrowser || !this.scrollLockSnapshot) return;
+
+    const body = this.document.body;
+    const html = this.document.documentElement;
+    const { scrollY } = this.scrollLockSnapshot;
+    body.style.overflow = this.scrollLockSnapshot.bodyOverflow;
+    body.style.paddingRight = this.scrollLockSnapshot.bodyPaddingRight;
+    body.style.position = this.scrollLockSnapshot.bodyPosition;
+    body.style.top = this.scrollLockSnapshot.bodyTop;
+    body.style.width = this.scrollLockSnapshot.bodyWidth;
+    html.style.scrollBehavior = 'auto';
+    window.scrollTo(0, scrollY);
+    html.style.scrollBehavior = this.scrollLockSnapshot.htmlScrollBehavior;
+    this.scrollLockSnapshot = null;
   }
 }

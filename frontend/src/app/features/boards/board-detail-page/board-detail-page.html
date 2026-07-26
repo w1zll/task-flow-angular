@@ -33,31 +33,95 @@
           }
         </div>
       </div>
-      <app-button variant="secondary" (pressed)="openMembers()">
-        {{
-          'boardMembers.action'
-            | transloco
-              : {
-                  count: currentBoard.members?.length ?? 0,
-                }
-        }}
-      </app-button>
+      <div class="board-page__actions">
+        @if (currentBoard.capabilities.canManageColumns) {
+          <app-button [disabled]="kanban.busyId() !== null" (pressed)="openCreateColumn()">
+            {{ 'kanban.column.create.action' | transloco }}
+          </app-button>
+        }
+        <app-button variant="secondary" (pressed)="openMembers()">
+          {{
+            'boardMembers.action'
+              | transloco
+                : {
+                    count: currentBoard.members?.length ?? 0,
+                  }
+          }}
+        </app-button>
+      </div>
     </header>
 
-    <div class="columns-preview">
-      @for (column of currentBoard.columns ?? []; track column.id) {
-        <article>
-          <strong>{{ column.title }}</strong>
-          <span>
-            {{ 'boards.detail.tasksCount' | transloco: { count: column.tasks?.length ?? 0 } }}
-          </span>
-        </article>
-      } @empty {
-        <div class="columns-preview__empty">
-          <h3>{{ 'boards.detail.emptyTitle' | transloco }}</h3>
-          <p>{{ 'boards.detail.emptyDescription' | transloco }}</p>
-        </div>
-      }
-    </div>
+    @if (kanban.errorKey(); as mutationErrorKey) {
+      <p class="board-page__mutation-error" role="alert">
+        {{ mutationErrorKey | transloco }}
+      </p>
+    }
+
+    @if (columns().length) {
+      <label class="board-page__mobile-column">
+        <span>{{ 'kanban.mobile.activeColumn' | transloco }}</span>
+        <select [value]="activeColumn()?.id ?? ''" (change)="selectActiveColumn($event)">
+          @for (column of columns(); track column.id) {
+            <option [value]="column.id">
+              {{ column.title }} ({{ column.tasks?.length ?? 0 }})
+            </option>
+          }
+        </select>
+      </label>
+
+      <div class="kanban-desktop" [attr.aria-label]="'kanban.boardLabel' | transloco">
+        @for (column of columns(); track column.id; let columnIndex = $index) {
+          <app-kanban-column
+            [column]="column"
+            [columns]="columns()"
+            [index]="columnIndex"
+            [canEditTasks]="currentBoard.capabilities.canEditBoardContent"
+            [canManageColumns]="currentBoard.capabilities.canManageColumns"
+            [busyId]="kanban.busyId()"
+            (createTask)="openCreateTask(column)"
+            (rename)="openRenameColumn(column)"
+            (remove)="openDeleteColumn(column)"
+            (moveColumn)="moveColumn(column, $event)"
+            (editTask)="openTask($event)"
+            (removeTask)="openDeleteTask($event)"
+            (toggleTask)="toggleTask($event)"
+            (moveTask)="moveTask($event)"
+            (reorderTask)="reorderTask($event)"
+          />
+        }
+      </div>
+
+      <div class="kanban-mobile">
+        @if (activeColumn(); as column) {
+          <app-kanban-column
+            [column]="column"
+            [columns]="columns()"
+            [index]="columns().indexOf(column)"
+            [canEditTasks]="currentBoard.capabilities.canEditBoardContent"
+            [canManageColumns]="currentBoard.capabilities.canManageColumns"
+            [busyId]="kanban.busyId()"
+            (createTask)="openCreateTask(column)"
+            (rename)="openRenameColumn(column)"
+            (remove)="openDeleteColumn(column)"
+            (moveColumn)="moveColumn(column, $event)"
+            (editTask)="openTask($event)"
+            (removeTask)="openDeleteTask($event)"
+            (toggleTask)="toggleTask($event)"
+            (moveTask)="moveTask($event)"
+            (reorderTask)="reorderTask($event)"
+          />
+        }
+      </div>
+    } @else {
+      <div class="columns-preview__empty">
+        <h3>{{ 'boards.detail.emptyTitle' | transloco }}</h3>
+        <p>{{ 'kanban.empty.description' | transloco }}</p>
+        @if (currentBoard.capabilities.canManageColumns) {
+          <app-button (pressed)="openCreateColumn()">
+            {{ 'kanban.column.create.action' | transloco }}
+          </app-button>
+        }
+      </div>
+    }
   }
 </section>

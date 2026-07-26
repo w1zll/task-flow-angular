@@ -1,0 +1,31 @@
+<section class="dialog">
+  <h2 id="kanban-delete-title">
+    {{
+      (data.kind === 'column' ? 'kanban.column.delete.title' : 'kanban.task.delete.title')
+        | transloco
+    }}
+  </h2>
+  <p>
+    @if (data.kind === 'column') {
+      {{ 'kanban.column.delete.description' | transloco: { title, count: taskCount } }}
+    } @else {
+      {{ 'kanban.task.delete.description' | transloco: { title } }}
+    }
+  </p>
+
+  @if (store.errorKey(); as errorKey) {
+    <p class="dialog__error" role="alert">{{ errorKey | transloco }}</p>
+  }
+
+  <div class="dialog__actions">
+    <app-button variant="secondary" [disabled]="busy()" (pressed)="close()">
+      {{ 'actions.cancel' | transloco }}
+    </app-button>
+    <app-button variant="danger" [loading]="busy()" [disabled]="busy()" (pressed)="confirm()">
+      {{
+        (data.kind === 'column' ? 'kanban.column.delete.submit' : 'kanban.task.delete.submit')
+          | transloco
+      }}
+    </app-button>
+  </div>
+</section>

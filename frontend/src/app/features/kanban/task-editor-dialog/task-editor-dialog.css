@@ -1,0 +1,85 @@
+@reference "#app.css";
+
+:host {
+  @apply block w-[min(44rem,calc(100vw-2rem))];
+}
+
+.dialog {
+  @apply max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-xl border border-border bg-surface p-6 text-foreground shadow-card;
+}
+
+.dialog > header {
+  @apply flex items-start justify-between gap-4;
+}
+
+.dialog h2 {
+  @apply text-xl font-bold;
+}
+
+.dialog header p {
+  @apply mt-2 text-sm leading-6 text-muted;
+}
+
+.dialog form {
+  @apply mt-5 grid gap-4;
+}
+
+fieldset {
+  @apply grid grid-cols-2 gap-4 border-0 p-0;
+}
+
+.field {
+  @apply grid content-start gap-2 text-sm font-semibold;
+}
+
+.field--wide {
+  @apply col-span-2;
+}
+
+.field input,
+.field textarea,
+.field select {
+  @apply min-h-11 w-full rounded-control border border-border bg-canvas px-3 py-2 text-base font-normal text-foreground;
+}
+
+.field textarea {
+  @apply resize-y;
+}
+
+.field small {
+  @apply text-xs font-normal text-danger;
+}
+
+.checkbox-field {
+  @apply flex min-h-11 items-center gap-3 self-end rounded-control border border-border px-3 text-sm font-semibold;
+}
+
+.checkbox-field input {
+  @apply size-4 accent-primary;
+}
+
+.dialog__error {
+  @apply rounded-control border border-danger/40 bg-danger/10 px-3 py-2.5 text-sm text-danger;
+}
+
+.dialog__actions {
+  @apply flex justify-end gap-3;
+}
+
+@media (max-width: 639px) {
+  :host {
+    @apply h-dvh w-screen;
+  }
+
+  .dialog {
+    @apply h-full max-h-none rounded-none border-0 p-4;
+  }
+
+  fieldset {
+    @apply grid-cols-1;
+  }
+
+  .field--wide {
+    @apply col-span-1;
+  }
+}
