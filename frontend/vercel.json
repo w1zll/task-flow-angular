@@ -3,14 +3,21 @@
   "framework": "angular",
   "buildCommand": "npm run build",
   "outputDirectory": "dist/task-flow-angular/browser",
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/:path*",
-      "destination": "https://task-flow-api-for-angular.onrender.com/api/:path*"
+      "src": "^/api/(.*)$",
+      "dest": "https://task-flow-api-for-angular.onrender.com/api/$1"
     },
     {
-      "source": "^/(.+)$",
-      "destination": "/index.csr.html"
+      "handle": "filesystem"
+    },
+    {
+      "src": "^/$",
+      "dest": "/index.html"
+    },
+    {
+      "src": "^/.*$",
+      "dest": "/index.csr.html"
     }
   ],
   "headers": [
