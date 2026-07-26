@@ -23,10 +23,12 @@
 - Signals: `signal`, `computed`, `effect`;
 - control flow: `@if`, `@for`, `@switch`;
 - `inject()`, `DestroyRef` и `takeUntilDestroyed`;
+- SignalStore обеспечивает server-state cache, stale-while-revalidate и optimistic rollback;
 - SSR, hydration и prerender.
 
 ## Socket.IO
 
+- REST/auth используют same-origin `/api`, а Socket.IO подключается напрямую к backend;
 - через сокеты выполняются изменение/завершение, перемещение и перестановка задач;
 - создание и удаление задач выполняются через REST, а socket events согласуют cache между вкладками;
 - операции с колонками остаются REST-only.
