@@ -166,7 +166,7 @@
                         : {
                             uses: invite.usesCount,
                             max: invite.maxUses ?? '∞',
-                            date: invite.expiresAt.slice(0, 10),
+                            date: (invite.expiresAt | localizedDate: 'mediumDate'),
                           }
                   }}
                 </span>

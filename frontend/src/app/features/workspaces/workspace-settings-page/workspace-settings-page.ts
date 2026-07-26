@@ -23,6 +23,7 @@ import {
   WorkspaceResponseDto,
 } from '@core/api/generated';
 import { AuthStore } from '@core/auth/auth.store';
+import { LocalizedDatePipe } from '@core/i18n/localized-date.pipe';
 import {
   WorkspaceDeleteDialog,
   WorkspaceDeleteResult,
@@ -35,7 +36,7 @@ type MemberRole = 'admin' | 'member';
 
 @Component({
   selector: 'app-workspace-settings-page',
-  imports: [AppButton, LoadingSkeleton, ReactiveFormsModule, TranslocoPipe],
+  imports: [AppButton, LoadingSkeleton, LocalizedDatePipe, ReactiveFormsModule, TranslocoPipe],
   templateUrl: './workspace-settings-page.html',
   styleUrl: './workspace-settings-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
@@ -8,6 +7,7 @@ import { ApiError } from '@core/api/api-error';
 import { WorkspaceInvitesApi } from '@core/api/clients/workspace-invites-api';
 import { WorkspaceInvitePreviewDto } from '@core/api/generated';
 import { AuthStore } from '@core/auth/auth.store';
+import { LocalizedDatePipe } from '@core/i18n/localized-date.pipe';
 import { PendingWorkspaceInviteService } from '@core/invites/pending-workspace-invite.service';
 import { WorkspaceStore } from '@features/workspaces/workspace.store';
 import { AppButton } from '@shared/ui/app-button/app-button';
@@ -15,7 +15,7 @@ import { LoadingSkeleton } from '@shared/ui/loading-skeleton/loading-skeleton';
 
 @Component({
   selector: 'app-workspace-invite-page',
-  imports: [AppButton, DatePipe, LoadingSkeleton, RouterLink, TranslocoPipe],
+  imports: [AppButton, LoadingSkeleton, LocalizedDatePipe, RouterLink, TranslocoPipe],
   templateUrl: './workspace-invite-page.html',
   styleUrl: './workspace-invite-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

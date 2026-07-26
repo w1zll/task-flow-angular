@@ -13,7 +13,7 @@
 }
 
 .button {
-  @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-control border border-transparent px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-55;
+  @apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-control border border-transparent px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-55;
 }
 
 .button[data-variant='primary'] {

@@ -24,7 +24,7 @@
       <dl>
         <div>
           <dt>{{ 'invites.preview.expires' | transloco }}</dt>
-          <dd>{{ invite.expiresAt | date: 'medium' }}</dd>
+          <dd>{{ invite.expiresAt | localizedDate: 'medium' }}</dd>
         </div>
         @if (invite.emailRestricted) {
           <div>
