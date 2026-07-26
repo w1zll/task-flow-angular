@@ -11,14 +11,19 @@
 
     <div class="header__actions">
       <nav class="auth-nav" [attr.aria-label]="'header.authNavigation' | transloco">
-        @if (auth.isLoading()) {
+        @if (!auth.hydrated()) {
           <span class="auth-loading" aria-hidden="true"></span>
         } @else if (auth.user(); as user) {
           <a class="auth-link" routerLink="/workspaces">
             {{ 'header.workspaces' | transloco }}
           </a>
           <span class="auth-user" [title]="user.name">{{ user.name }}</span>
-          <button class="auth-link auth-link--primary" type="button" (click)="logout()">
+          <button
+            class="auth-link auth-link--primary"
+            type="button"
+            [disabled]="auth.status() === 'loading'"
+            (click)="logout()"
+          >
             {{ 'header.logout' | transloco }}
           </button>
         } @else {

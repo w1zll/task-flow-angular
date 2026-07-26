@@ -32,7 +32,7 @@ const workspaceErrorKey = (error: unknown): string => {
   if (error.kind === 'forbidden') return 'workspaces.errors.forbidden';
   if (error.kind === 'not-found') return 'workspaces.errors.notFound';
   if (error.kind === 'validation') return 'workspaces.errors.invalidData';
-  if (error.kind === 'network' || error.kind === 'server') {
+  if (error.kind === 'network' || error.kind === 'server' || error.kind === 'unexpected-response') {
     return 'workspaces.errors.unavailable';
   }
 

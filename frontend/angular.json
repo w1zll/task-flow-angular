@@ -72,6 +72,10 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "host": "127.0.0.1",
+            "proxyConfig": "proxy.conf.json"
+          },
           "configurations": {
             "production": {
               "buildTarget": "task-flow-angular:build:production"

@@ -9,6 +9,7 @@ interface ErrorPayload {
 
 const errorKind = (status: number): ApiErrorKind => {
   if (status === 0) return 'network';
+  if (status >= 200 && status < 300) return 'unexpected-response';
   if (status === 401) return 'unauthorized';
   if (status === 403) return 'forbidden';
   if (status === 404) return 'not-found';
@@ -39,7 +40,7 @@ export const apiErrorInterceptor: HttpInterceptorFn = (request, next) => {
         kind,
         error.status,
         errorCode(error),
-        kind === 'network' || kind === 'server',
+        kind === 'network' || kind === 'server' || kind === 'unexpected-response',
       );
 
       return throwError(() => normalized);

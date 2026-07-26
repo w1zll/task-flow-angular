@@ -21,12 +21,14 @@ export type AuthStatus = 'idle' | 'loading' | 'authenticated' | 'guest';
 interface AuthState {
   readonly user: UserDto | null;
   readonly status: AuthStatus;
+  readonly hydrated: boolean;
   readonly errorKey: string | null;
 }
 
 const initialState: AuthState = {
   user: null,
   status: 'idle',
+  hydrated: false,
   errorKey: null,
 };
 
@@ -39,7 +41,7 @@ const authErrorKey = (error: unknown, action: 'login' | 'register' | 'session'):
     return 'auth.errors.emailTaken';
   }
   if (error.kind === 'validation') return 'auth.errors.invalidData';
-  if (error.kind === 'network' || error.kind === 'server') {
+  if (error.kind === 'network' || error.kind === 'server' || error.kind === 'unexpected-response') {
     return 'auth.errors.unavailable';
   }
   if (action === 'session') return 'auth.errors.session';
@@ -65,6 +67,7 @@ export const AuthStore = signalStore(
       patchState(store, {
         user,
         status: 'authenticated',
+        hydrated: true,
         errorKey: null,
       });
     };
@@ -73,6 +76,7 @@ export const AuthStore = signalStore(
       patchState(store, {
         user: null,
         status: 'guest',
+        hydrated: true,
         errorKey,
       });
     };

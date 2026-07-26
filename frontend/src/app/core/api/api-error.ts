@@ -1,5 +1,6 @@
 export type ApiErrorKind =
   | 'network'
+  | 'unexpected-response'
   | 'unauthorized'
   | 'forbidden'
   | 'not-found'
