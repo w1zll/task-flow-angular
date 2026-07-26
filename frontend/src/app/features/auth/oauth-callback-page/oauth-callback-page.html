@@ -1,0 +1,23 @@
+<main class="callback-page">
+  <section class="callback-card" aria-live="polite">
+    @if (loading()) {
+      <div class="callback-card__loading" aria-busy="true">
+        <span class="callback-card__provider-mark" aria-hidden="true">↗</span>
+        <h1>{{ 'auth.oauth.callback.title' | transloco }}</h1>
+        <p>{{ 'auth.oauth.callback.description' | transloco }}</p>
+        <app-loading-skeleton [lines]="3" />
+      </div>
+    } @else if (errorKey(); as error) {
+      <div class="callback-card__error">
+        <span aria-hidden="true">!</span>
+        <h1>{{ 'auth.oauth.callback.errorTitle' | transloco }}</h1>
+        <p role="alert">{{ error | transloco }}</p>
+        <app-button variant="secondary" (pressed)="retry()">
+          {{
+            (canRetryRequest() ? 'actions.retry' : 'auth.oauth.callback.backToLogin') | transloco
+          }}
+        </app-button>
+      </div>
+    }
+  </section>
+</main>

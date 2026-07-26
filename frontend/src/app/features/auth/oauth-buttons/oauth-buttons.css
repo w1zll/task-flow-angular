@@ -1,0 +1,45 @@
+@reference "#app.css";
+
+:host {
+  @apply block;
+}
+
+.oauth-loading {
+  @apply mt-6 grid gap-3 border-t border-border pt-6;
+}
+
+.oauth-loading span {
+  @apply h-11 animate-pulse rounded-control bg-surface-muted;
+}
+
+.oauth-divider {
+  @apply my-6 grid grid-cols-[1fr_auto_1fr] items-center gap-3;
+}
+
+.oauth-divider span {
+  @apply h-px bg-border;
+}
+
+.oauth-divider p {
+  @apply text-xs font-semibold uppercase tracking-wide text-muted;
+}
+
+.oauth-actions {
+  @apply grid gap-3;
+}
+
+.oauth-actions svg {
+  @apply size-5 shrink-0;
+}
+
+.github-icon {
+  @apply text-foreground;
+}
+
+.oauth-error {
+  @apply mt-6 rounded-control border border-border bg-surface-muted px-3 py-3 text-center text-sm text-muted;
+}
+
+.oauth-error button {
+  @apply mt-2 cursor-pointer border-0 bg-transparent font-semibold text-primary hover:underline;
+}

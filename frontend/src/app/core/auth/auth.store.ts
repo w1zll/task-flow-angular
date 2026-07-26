@@ -72,6 +72,11 @@ export const AuthStore = signalStore(
       });
     };
 
+    const finishAuthentication = (user: UserDto): void => {
+      cache.clearPrivate();
+      setAuthenticated(user);
+    };
+
     const setGuest = (errorKey: string | null = null): void => {
       patchState(store, {
         user: null,
@@ -117,7 +122,7 @@ export const AuthStore = signalStore(
 
         try {
           const response = await firstValueFrom(authApi.login({ body: credentials }));
-          setAuthenticated(response.user);
+          finishAuthentication(response.user);
           return response.user;
         } catch (error) {
           setGuest(authErrorKey(error, 'login'));
@@ -129,10 +134,34 @@ export const AuthStore = signalStore(
 
         try {
           const response = await firstValueFrom(authApi.register({ body: data }));
-          setAuthenticated(response.user);
+          finishAuthentication(response.user);
           return response.user;
         } catch (error) {
           setGuest(authErrorKey(error, 'register'));
+          throw error;
+        }
+      },
+      async completeOAuth(): Promise<UserDto> {
+        const currentUser = store.user();
+        if (store.status() === 'authenticated' && currentUser) return currentUser;
+
+        if (bootstrapRequest) {
+          await bootstrapRequest;
+          const bootstrappedUser = store.user();
+          if (store.status() === 'authenticated' && bootstrappedUser) {
+            return bootstrappedUser;
+          }
+        }
+
+        patchState(store, { status: 'loading', errorKey: null });
+
+        try {
+          await backend.waitUntilReady();
+          const user = await firstValueFrom(authApi.me());
+          finishAuthentication(user);
+          return user;
+        } catch (error) {
+          setGuest(authErrorKey(error, 'session'));
           throw error;
         }
       },

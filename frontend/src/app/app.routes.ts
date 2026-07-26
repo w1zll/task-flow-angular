@@ -22,6 +22,13 @@ export const routes: Routes = [
       import('@features/auth/register-page/register-page').then(({ RegisterPage }) => RegisterPage),
   },
   {
+    path: 'auth/oauth/callback',
+    loadComponent: () =>
+      import('@features/auth/oauth-callback-page/oauth-callback-page').then(
+        ({ OAuthCallbackPage }) => OAuthCallbackPage,
+      ),
+  },
+  {
     path: 'invite/:token',
     loadComponent: () =>
       import('@features/invites/workspace-invite-page/workspace-invite-page').then(

@@ -46,6 +46,30 @@
       "unavailable": "The server is temporarily unavailable. Try again.",
       "session": "The session could not be restored. Sign in again.",
       "unknown": "The request could not be completed. Try again."
+    },
+    "oauth": {
+      "loading": "Loading available sign-in methods",
+      "providersUnavailable": "Social sign-in methods could not be loaded.",
+      "divider": "or continue with",
+      "continueWith": {
+        "google": "Continue with Google",
+        "github": "Continue with GitHub"
+      },
+      "callback": {
+        "title": "Completing sign-in",
+        "description": "Verifying your TaskFlow session and preparing your workspace.",
+        "errorTitle": "Sign-in failed",
+        "backToLogin": "Back to sign in"
+      },
+      "errors": {
+        "account_exists": "An account with this email already exists. Sign in with email and password; no linked-provider details are disclosed.",
+        "email_unverified": "Your provider did not verify the email address. Verify it with the provider and try again.",
+        "access_denied": "You cancelled sign-in or did not grant access.",
+        "expired": "The sign-in attempt expired. Start the sign-in flow again.",
+        "identity_in_use": "This provider account is already used by another account.",
+        "provider_unavailable": "The sign-in provider is temporarily unavailable. Try again later.",
+        "session": "OAuth completed, but the TaskFlow session could not be verified. Try again."
+      }
     }
   },
   "theme": {
