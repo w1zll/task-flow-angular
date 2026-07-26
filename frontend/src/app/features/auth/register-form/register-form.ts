@@ -5,6 +5,8 @@ import { TranslocoPipe } from '@jsverse/transloco';
 
 import { postAuthUrl } from '@core/auth/auth-route';
 import { AuthStore } from '@core/auth/auth.store';
+import { PendingWorkspaceInviteService } from '@core/invites/pending-workspace-invite.service';
+import { WorkspaceStore } from '@features/workspaces/workspace.store';
 import { AppButton } from '@shared/ui/app-button/app-button';
 
 @Component({
@@ -18,6 +20,8 @@ export class RegisterForm {
   private readonly formBuilder = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly pendingInvite = inject(PendingWorkspaceInviteService);
+  private readonly workspaces = inject(WorkspaceStore);
   protected readonly auth = inject(AuthStore);
 
   protected readonly form = this.formBuilder.nonNullable.group({
@@ -42,6 +46,20 @@ export class RegisterForm {
 
     try {
       const user = await this.auth.register(this.form.getRawValue());
+      const pendingToken = this.pendingInvite.peek();
+      if (pendingToken) {
+        try {
+          const workspace = await this.pendingInvite.accept(pendingToken);
+          if (workspace) {
+            this.workspaces.integrateAcceptedWorkspace(workspace);
+            await this.router.navigate(['/workspaces', workspace.id, 'boards']);
+            return;
+          }
+        } catch {
+          await this.router.navigate(['/invite', pendingToken]);
+          return;
+        }
+      }
       const destination = postAuthUrl(user, this.route.snapshot.queryParamMap.get('next'));
       await this.router.navigateByUrl(destination);
     } catch {}

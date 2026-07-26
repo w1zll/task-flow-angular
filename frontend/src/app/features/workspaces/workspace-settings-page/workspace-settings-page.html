@@ -1,0 +1,206 @@
+<section class="settings-page">
+  <header class="settings-page__header">
+    <div>
+      <h2>{{ 'workspaces.settings.title' | transloco }}</h2>
+      <p>{{ 'workspaces.settings.description' | transloco }}</p>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="settings-state" aria-busy="true">
+      <app-loading-skeleton [lines]="8" />
+    </div>
+  } @else if (loadErrorKey(); as errorKey) {
+    <div class="settings-state settings-state--error">
+      <strong>{{ 'workspaces.settings.loadError' | transloco }}</strong>
+      <p>{{ errorKey | transloco }}</p>
+      <app-button variant="secondary" (pressed)="retry()">
+        {{ 'actions.retry' | transloco }}
+      </app-button>
+    </div>
+  } @else {
+    @if (mutationErrorKey(); as errorKey) {
+      <p class="settings-error" role="alert">{{ errorKey | transloco }}</p>
+    }
+
+    <section class="settings-section" aria-labelledby="members-heading">
+      <div class="settings-section__heading">
+        <div>
+          <h3 id="members-heading">{{ 'workspaces.settings.members.title' | transloco }}</h3>
+          <p>{{ 'workspaces.settings.members.description' | transloco }}</p>
+        </div>
+        <span class="count-badge">{{ members().length }}</span>
+      </div>
+
+      <div class="member-list">
+        @for (member of members(); track member.id) {
+          <article class="member-row">
+            <span class="member-row__avatar" aria-hidden="true">
+              {{ member.user.name.slice(0, 1).toUpperCase() }}
+            </span>
+            <div class="member-row__identity">
+              <strong>{{ member.user.name }}</strong>
+              <span>{{ member.user.email }}</span>
+            </div>
+            <div class="member-row__role">
+              @if (canChangeRole(member)) {
+                <label [for]="'role-' + member.id" class="sr-only">
+                  {{ 'workspaces.settings.members.roleLabel' | transloco }}
+                </label>
+                <select
+                  [id]="'role-' + member.id"
+                  [value]="member.role"
+                  [disabled]="busyId() === member.id"
+                  (change)="changeRole(member, $event)"
+                >
+                  <option value="admin">{{ 'workspaces.roles.admin' | transloco }}</option>
+                  <option value="member">{{ 'workspaces.roles.member' | transloco }}</option>
+                </select>
+              } @else {
+                <span class="role-badge">
+                  {{ 'workspaces.roles.' + member.role | transloco }}
+                </span>
+              }
+            </div>
+            <div class="member-row__actions">
+              @if (canRemove(member)) {
+                @if (confirmRemoveId() === member.id) {
+                  <app-button
+                    variant="danger"
+                    [loading]="busyId() === member.id"
+                    (pressed)="removeMember(member)"
+                  >
+                    {{ 'workspaces.settings.members.confirmRemove' | transloco }}
+                  </app-button>
+                  <app-button variant="ghost" (pressed)="cancelRemove()">
+                    {{ 'actions.cancel' | transloco }}
+                  </app-button>
+                } @else {
+                  <app-button variant="ghost" (pressed)="requestRemove(member.id)">
+                    {{ 'workspaces.settings.members.remove' | transloco }}
+                  </app-button>
+                }
+              }
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+
+    @if (canManageInvites()) {
+      <section class="settings-section" aria-labelledby="invites-heading">
+        <div class="settings-section__heading">
+          <div>
+            <h3 id="invites-heading">{{ 'invites.settings.title' | transloco }}</h3>
+            <p>{{ 'invites.settings.description' | transloco }}</p>
+          </div>
+        </div>
+
+        <form class="invite-form" [formGroup]="inviteForm" (ngSubmit)="createInvite()">
+          <label>
+            <span>{{ 'invites.settings.role' | transloco }}</span>
+            <select formControlName="defaultRole">
+              <option value="member">{{ 'workspaces.roles.member' | transloco }}</option>
+              @if (workspace()?.currentUserRole === 'owner') {
+                <option value="admin">{{ 'workspaces.roles.admin' | transloco }}</option>
+              }
+            </select>
+          </label>
+          <label>
+            <span>{{ 'invites.settings.expires' | transloco }}</span>
+            <input type="number" min="1" max="30" formControlName="expiresInDays" />
+          </label>
+          <label>
+            <span>{{ 'invites.settings.maxUses' | transloco }}</span>
+            <input type="number" min="1" max="1000" formControlName="maxUses" />
+          </label>
+          <label>
+            <span>{{ 'invites.settings.email' | transloco }}</span>
+            <input type="email" formControlName="allowedEmail" placeholder="name@example.com" />
+          </label>
+          <label>
+            <span>{{ 'invites.settings.domain' | transloco }}</span>
+            <input type="text" formControlName="allowedEmailDomain" placeholder="example.com" />
+          </label>
+          <div class="invite-form__submit">
+            <app-button
+              type="submit"
+              [loading]="busyId() === 'create-invite'"
+              [disabled]="busyId() !== null"
+            >
+              {{ 'invites.settings.create' | transloco }}
+            </app-button>
+          </div>
+        </form>
+        @if (inviteForm.invalid && inviteForm.touched) {
+          <p class="form-error">{{ 'invites.settings.validation' | transloco }}</p>
+        }
+
+        @if (createdInviteUrl(); as url) {
+          <div class="created-invite">
+            <div>
+              <strong>{{ 'invites.settings.createdTitle' | transloco }}</strong>
+              <p>{{ 'invites.settings.createdHint' | transloco }}</p>
+            </div>
+            <input [value]="url" readonly />
+            <app-button variant="secondary" (pressed)="copyInvite()">
+              {{ 'invites.settings.copy' | transloco }}
+            </app-button>
+            @if (copyStatusKey(); as statusKey) {
+              <span role="status">{{ statusKey | transloco }}</span>
+            }
+          </div>
+        }
+
+        <div class="invite-list">
+          @for (invite of invites(); track invite.id) {
+            <article class="invite-row">
+              <div>
+                <strong>
+                  {{ 'workspaces.roles.' + invite.defaultRole | transloco }}
+                </strong>
+                <span>
+                  {{
+                    'invites.settings.inviteMeta'
+                      | transloco
+                        : {
+                            uses: invite.usesCount,
+                            max: invite.maxUses ?? '∞',
+                            date: invite.expiresAt.slice(0, 10),
+                          }
+                  }}
+                </span>
+                @if (invite.allowedEmailDomain) {
+                  <span>@{{ invite.allowedEmailDomain }}</span>
+                } @else if (invite.hasSpecificEmailRestriction) {
+                  <span>{{ 'invites.settings.specificEmail' | transloco }}</span>
+                }
+              </div>
+              <app-button
+                variant="ghost"
+                [loading]="busyId() === invite.id"
+                (pressed)="revokeInvite(invite)"
+              >
+                {{ 'invites.settings.revoke' | transloco }}
+              </app-button>
+            </article>
+          } @empty {
+            <p class="invite-list__empty">{{ 'invites.settings.empty' | transloco }}</p>
+          }
+        </div>
+      </section>
+    }
+
+    @if (workspace()?.currentUserRole === 'owner' && workspace(); as currentWorkspace) {
+      <section class="settings-section settings-section--danger" aria-labelledby="danger-heading">
+        <div>
+          <h3 id="danger-heading">{{ 'workspaces.settings.danger.title' | transloco }}</h3>
+          <p>{{ 'workspaces.settings.danger.description' | transloco }}</p>
+        </div>
+        <app-button variant="danger" (pressed)="openDeleteDialog(currentWorkspace)">
+          {{ 'workspaces.delete.submit' | transloco }}
+        </app-button>
+      </section>
+    }
+  }
+</section>

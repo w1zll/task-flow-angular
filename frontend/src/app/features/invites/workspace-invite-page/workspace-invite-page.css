@@ -1,0 +1,65 @@
+@reference "#app.css";
+
+.invite-page {
+  @apply grid min-h-[calc(100dvh-var(--tf-header-height))] place-items-center px-4 py-10;
+}
+
+.invite-card {
+  @apply w-full max-w-xl rounded-2xl border border-border bg-surface p-6 shadow-card sm:p-8;
+}
+
+.invite-card__mark {
+  @apply mb-5 grid size-14 place-items-center rounded-xl bg-primary-soft text-xl font-bold text-primary;
+}
+
+.invite-card__eyebrow {
+  @apply text-sm font-bold uppercase tracking-wider text-primary;
+}
+
+.invite-card h1 {
+  @apply mt-2 text-2xl font-bold tracking-tight sm:text-3xl;
+}
+
+.invite-card__description {
+  @apply mt-3 leading-7 text-muted;
+}
+
+.invite-card dl {
+  @apply mt-6 grid gap-3 rounded-xl bg-surface-muted p-4 sm:grid-cols-2;
+}
+
+.invite-card dl div {
+  @apply grid gap-1;
+}
+
+.invite-card dt {
+  @apply text-xs font-bold uppercase tracking-wide text-muted;
+}
+
+.invite-card dd {
+  @apply m-0 text-sm font-semibold;
+}
+
+.invite-card__error {
+  @apply mt-5 rounded-control border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger;
+}
+
+.invite-card__actions {
+  @apply mt-6 flex flex-wrap gap-3;
+}
+
+.invite-link {
+  @apply inline-flex min-h-11 items-center justify-center rounded-control border border-border bg-surface px-4 py-2 text-sm font-semibold text-foreground no-underline hover:bg-surface-muted;
+}
+
+.invite-link--primary {
+  @apply border-primary bg-primary text-white hover:bg-primary-hover;
+}
+
+.invite-card__invalid {
+  @apply grid justify-items-start gap-3;
+}
+
+.invite-card__invalid > span {
+  @apply grid size-11 place-items-center rounded-full bg-danger/10 text-lg font-bold text-danger;
+}

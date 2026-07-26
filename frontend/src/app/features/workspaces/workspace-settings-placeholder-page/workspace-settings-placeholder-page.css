@@ -1,5 +1,0 @@
-@reference "#app.css";
-
-.settings-page {
-  @apply py-2;
-}

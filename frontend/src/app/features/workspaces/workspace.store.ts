@@ -155,6 +155,28 @@ export const WorkspaceStore = signalStore(
           throw error;
         }
       },
+      integrateAcceptedWorkspace(workspace: WorkspaceResponseDto): void {
+        const cachedWorkspaces = store.cache.get<readonly WorkspaceResponseDto[]>(
+          queryKeys.workspaces,
+        );
+
+        if (cachedWorkspaces) {
+          store.cache.update<readonly WorkspaceResponseDto[]>(
+            queryKeys.workspaces,
+            (workspaces = []) => {
+              const withoutAccepted = workspaces.filter((item) => item.id !== workspace.id);
+
+              return [
+                ...withoutAccepted.map((item) => ({ ...item, isActive: false })),
+                { ...workspace, isActive: true },
+              ];
+            },
+          );
+        } else {
+          store.cache.remove(queryKeys.workspaces);
+        }
+        auth.setActiveWorkspace(workspace.id);
+      },
       async remove(workspaceId: string): Promise<string | null> {
         patchState(store, { mutationStatus: 'loading', mutationErrorKey: null });
 

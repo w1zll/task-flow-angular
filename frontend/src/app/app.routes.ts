@@ -22,6 +22,13 @@ export const routes: Routes = [
       import('@features/auth/register-page/register-page').then(({ RegisterPage }) => RegisterPage),
   },
   {
+    path: 'invite/:token',
+    loadComponent: () =>
+      import('@features/invites/workspace-invite-page/workspace-invite-page').then(
+        ({ WorkspaceInvitePage }) => WorkspaceInvitePage,
+      ),
+  },
+  {
     path: 'workspaces',
     canActivate: [authGuard],
     children: [
@@ -54,8 +61,8 @@ export const routes: Routes = [
           {
             path: 'settings',
             loadComponent: () =>
-              import('@features/workspaces/workspace-settings-placeholder-page/workspace-settings-placeholder-page').then(
-                ({ WorkspaceSettingsPlaceholderPage }) => WorkspaceSettingsPlaceholderPage,
+              import('@features/workspaces/workspace-settings-page/workspace-settings-page').then(
+                ({ WorkspaceSettingsPage }) => WorkspaceSettingsPage,
               ),
           },
         ],

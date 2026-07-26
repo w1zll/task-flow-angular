@@ -1,0 +1,76 @@
+<main class="invite-page">
+  <section class="invite-card">
+    @if (loading()) {
+      <div aria-busy="true">
+        <app-loading-skeleton [lines]="6" />
+      </div>
+    } @else if (preview(); as invite) {
+      <span class="invite-card__mark" aria-hidden="true">
+        {{ invite.workspaceName.slice(0, 1).toUpperCase() }}
+      </span>
+      <p class="invite-card__eyebrow">{{ 'invites.preview.eyebrow' | transloco }}</p>
+      <h1>{{ invite.workspaceName }}</h1>
+      <p class="invite-card__description">
+        {{
+          'invites.preview.description'
+            | transloco
+              : {
+                  inviter: invite.inviterName,
+                  role: ('workspaces.roles.' + invite.defaultRole | transloco),
+                }
+        }}
+      </p>
+
+      <dl>
+        <div>
+          <dt>{{ 'invites.preview.expires' | transloco }}</dt>
+          <dd>{{ invite.expiresAt | date: 'medium' }}</dd>
+        </div>
+        @if (invite.emailRestricted) {
+          <div>
+            <dt>{{ 'invites.preview.restriction' | transloco }}</dt>
+            <dd>{{ 'invites.preview.emailRestricted' | transloco }}</dd>
+          </div>
+        }
+      </dl>
+
+      @if (errorKey(); as error) {
+        <p class="invite-card__error" role="alert">{{ error | transloco }}</p>
+      }
+
+      <div class="invite-card__actions">
+        @if (auth.isAuthenticated()) {
+          <app-button [loading]="accepting()" [disabled]="accepting()" (pressed)="accept()">
+            {{ 'invites.preview.accept' | transloco }}
+          </app-button>
+        } @else {
+          <a
+            class="invite-link invite-link--primary"
+            routerLink="/auth/register"
+            [queryParams]="{ next: nextUrl }"
+            (click)="rememberInvite()"
+          >
+            {{ 'invites.preview.register' | transloco }}
+          </a>
+          <a
+            class="invite-link"
+            routerLink="/auth/login"
+            [queryParams]="{ next: nextUrl }"
+            (click)="rememberInvite()"
+          >
+            {{ 'invites.preview.login' | transloco }}
+          </a>
+        }
+      </div>
+    } @else {
+      <div class="invite-card__invalid">
+        <span aria-hidden="true">!</span>
+        <h1>{{ 'invites.errors.title' | transloco }}</h1>
+        <p role="alert">{{ errorKey() ?? 'invites.errors.unavailable' | transloco }}</p>
+        <app-button variant="secondary" (pressed)="retry()">
+          {{ 'actions.retry' | transloco }}
+        </app-button>
+      </div>
+    }
+  </section>
+</main>

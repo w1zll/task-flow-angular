@@ -135,7 +135,19 @@
     },
     "settings": {
       "title": "Workspace settings",
-      "description": "Members, roles, and invitations will be available here."
+      "description": "Manage members, roles, and public invitations.",
+      "loadError": "Workspace settings could not be loaded.",
+      "members": {
+        "title": "Members",
+        "description": "The owner manages roles, while administrators can remove regular members.",
+        "roleLabel": "Member role",
+        "remove": "Remove",
+        "confirmRemove": "Confirm"
+      },
+      "danger": {
+        "title": "Danger zone",
+        "description": "Deleting a workspace is permanent and available only to the owner."
+      }
     },
     "errors": {
       "loadTitle": "Workspaces could not be loaded",
@@ -145,6 +157,45 @@
       "invalidData": "Check the entered data.",
       "unavailable": "The server is temporarily unavailable. Try again.",
       "unknown": "The action could not be completed. Try again."
+    }
+  },
+  "invites": {
+    "preview": {
+      "eyebrow": "Workspace invitation",
+      "description": "{{ inviter }} invited you to join as {{ role }}.",
+      "expires": "Expires",
+      "restriction": "Restriction",
+      "emailRestricted": "Only for an allowed email",
+      "accept": "Join workspace",
+      "register": "Create account",
+      "login": "Sign in"
+    },
+    "settings": {
+      "title": "Invite links",
+      "description": "Create a public link. Its token is displayed only once.",
+      "role": "Default role",
+      "expires": "Expires in days",
+      "maxUses": "Maximum uses",
+      "email": "Specific email (optional)",
+      "domain": "Email domain (optional)",
+      "create": "Create link",
+      "validation": "Check the expiration, usage limit, and email restrictions.",
+      "createdTitle": "Your link is ready",
+      "createdHint": "Copy it now: the raw token cannot be retrieved later.",
+      "copy": "Copy",
+      "copied": "Link copied.",
+      "copyFailed": "Automatic copy failed. Copy the link from the field.",
+      "inviteMeta": "{{ uses }} of {{ max }} uses · until {{ date }}",
+      "specificEmail": "Restricted to a specific email",
+      "revoke": "Revoke",
+      "empty": "There are no active invite links yet."
+    },
+    "errors": {
+      "title": "Invitation unavailable",
+      "expiredOrInvalid": "The link is invalid, expired, revoked, or has reached its usage limit.",
+      "restricted": "This invitation is restricted to another email or domain.",
+      "accept": "The invitation could not be accepted. Try again.",
+      "unavailable": "The invitation could not be checked. Try again."
     }
   },
   "actions": {
