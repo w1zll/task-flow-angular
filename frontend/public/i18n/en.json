@@ -239,6 +239,29 @@
       "unknown": "The action could not be completed. Try again."
     }
   },
+  "boardMembers": {
+    "action": "Members: {{ count }}",
+    "title": "Board members",
+    "description": "Manage access to the board \"{{ board }}\".",
+    "roleLabel": "Board member role",
+    "remove": "Remove",
+    "confirmRemove": "Confirm",
+    "empty": "No one besides the owner has access to this board yet.",
+    "add": {
+      "person": "Workspace member",
+      "selectPerson": "Select a member",
+      "role": "Board role",
+      "submit": "Add",
+      "noCandidates": "All available workspace members are already on this board."
+    },
+    "errors": {
+      "forbidden": "You do not have permission to manage this board's members.",
+      "notFound": "The member or board no longer exists.",
+      "invalidData": "Check the selected member and role.",
+      "unavailable": "The server is temporarily unavailable. Try again.",
+      "unknown": "The action could not be completed. Try again."
+    }
+  },
   "invites": {
     "preview": {
       "eyebrow": "Workspace invitation",

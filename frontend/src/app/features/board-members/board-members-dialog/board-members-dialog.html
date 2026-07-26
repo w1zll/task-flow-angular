@@ -1,0 +1,132 @@
+<section class="dialog">
+  <header class="dialog__header">
+    <div>
+      <h2 id="board-members-title">{{ 'boardMembers.title' | transloco }}</h2>
+      <p>{{ 'boardMembers.description' | transloco: { board: board.title } }}</p>
+    </div>
+    <button type="button" [attr.aria-label]="'actions.close' | transloco" (click)="close()">
+      ×
+    </button>
+  </header>
+
+  @if (loading()) {
+    <div aria-busy="true">
+      <app-loading-skeleton [lines]="7" />
+    </div>
+  } @else if (loadError()) {
+    <div class="dialog__state">
+      <p role="alert">
+        {{ store.errorKey() ?? 'boardMembers.errors.unknown' | transloco }}
+      </p>
+      <app-button variant="secondary" (pressed)="retry()">
+        {{ 'actions.retry' | transloco }}
+      </app-button>
+    </div>
+  } @else {
+    @if (canManage) {
+      <form class="add-member" [formGroup]="addForm" (ngSubmit)="addMember()">
+        <label>
+          <span>{{ 'boardMembers.add.person' | transloco }}</span>
+          <select formControlName="userId">
+            <option value="" disabled>{{ 'boardMembers.add.selectPerson' | transloco }}</option>
+            @for (candidate of candidates(); track candidate.userId) {
+              <option [value]="candidate.userId">
+                {{ candidate.user.name }} · {{ candidate.user.email }}
+              </option>
+            }
+          </select>
+        </label>
+        <label>
+          <span>{{ 'boardMembers.add.role' | transloco }}</span>
+          <select formControlName="role">
+            <option value="editor">{{ 'workspaces.roles.editor' | transloco }}</option>
+            <option value="viewer">{{ 'workspaces.roles.viewer' | transloco }}</option>
+          </select>
+        </label>
+        <app-button
+          type="submit"
+          [loading]="store.busyId() === 'add'"
+          [disabled]="addForm.invalid || candidates().length === 0"
+        >
+          {{ 'boardMembers.add.submit' | transloco }}
+        </app-button>
+        @if (candidates().length === 0) {
+          <p>{{ 'boardMembers.add.noCandidates' | transloco }}</p>
+        }
+      </form>
+    }
+
+    @if (store.errorKey(); as errorKey) {
+      <p class="dialog__error" role="alert">{{ errorKey | transloco }}</p>
+    }
+
+    <div class="member-list">
+      @if (owner(); as boardOwner) {
+        <article class="member-row member-row--owner">
+          <span class="member-row__avatar" aria-hidden="true">
+            {{ boardOwner.user.name.slice(0, 1).toUpperCase() }}
+          </span>
+          <div class="member-row__identity">
+            <strong>{{ boardOwner.user.name }}</strong>
+            <span>{{ boardOwner.user.email }}</span>
+          </div>
+          <span class="role-badge">{{ 'workspaces.roles.owner' | transloco }}</span>
+        </article>
+      }
+
+      @for (member of regularMembers(); track member.id) {
+        <article class="member-row">
+          <span class="member-row__avatar" aria-hidden="true">
+            {{ member.user.name.slice(0, 1).toUpperCase() }}
+          </span>
+          <div class="member-row__identity">
+            <strong>{{ member.user.name }}</strong>
+            <span>{{ member.user.email }}</span>
+          </div>
+          <div class="member-row__role">
+            @if (canManage) {
+              <label class="sr-only" [for]="'board-role-' + member.id">
+                {{ 'boardMembers.roleLabel' | transloco }}
+              </label>
+              <select
+                [id]="'board-role-' + member.id"
+                [value]="member.role"
+                [disabled]="store.busyId() === member.id"
+                (change)="changeRole(member, $event)"
+              >
+                <option value="editor">{{ 'workspaces.roles.editor' | transloco }}</option>
+                <option value="viewer">{{ 'workspaces.roles.viewer' | transloco }}</option>
+              </select>
+            } @else {
+              <span class="role-badge">
+                {{ 'workspaces.roles.' + member.role | transloco }}
+              </span>
+            }
+          </div>
+          @if (canManage) {
+            <div class="member-row__actions">
+              @if (confirmRemoveId() === member.id) {
+                <app-button
+                  variant="danger"
+                  [loading]="store.busyId() === member.id"
+                  (pressed)="removeMember(member)"
+                >
+                  {{ 'boardMembers.confirmRemove' | transloco }}
+                </app-button>
+                <app-button variant="ghost" (pressed)="cancelRemove()">
+                  {{ 'actions.cancel' | transloco }}
+                </app-button>
+              } @else {
+                <app-button variant="ghost" (pressed)="requestRemove(member)">
+                  {{ 'boardMembers.remove' | transloco }}
+                </app-button>
+              }
+            </div>
+          }
+        </article>
+      } @empty {
+        <p class="member-list__empty">{{ 'boardMembers.empty' | transloco }}</p>
+      }
+    </div>
+  }
+</section>

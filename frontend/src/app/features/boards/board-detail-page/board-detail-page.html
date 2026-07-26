@@ -20,17 +20,28 @@
       {{ 'boards.detail.back' | transloco }}
     </a>
     <header class="board-page__header">
-      <span
-        class="board-page__color"
-        [style.background-color]="currentBoard.color || 'var(--tf-primary)'"
-      ></span>
-      <div>
-        <p>{{ 'workspaces.roles.' + currentBoard.currentUserRole | transloco }}</p>
-        <h2>{{ currentBoard.title }}</h2>
-        @if (currentBoard.description) {
-          <span>{{ currentBoard.description }}</span>
-        }
+      <div class="board-page__identity">
+        <span
+          class="board-page__color"
+          [style.background-color]="currentBoard.color || 'var(--tf-primary)'"
+        ></span>
+        <div>
+          <p>{{ 'workspaces.roles.' + currentBoard.currentUserRole | transloco }}</p>
+          <h2>{{ currentBoard.title }}</h2>
+          @if (currentBoard.description) {
+            <span>{{ currentBoard.description }}</span>
+          }
+        </div>
       </div>
+      <app-button variant="secondary" (pressed)="openMembers()">
+        {{
+          'boardMembers.action'
+            | transloco
+              : {
+                  count: currentBoard.members?.length ?? 0,
+                }
+        }}
+      </app-button>
     </header>
 
     <div class="columns-preview">

@@ -17,6 +17,7 @@ export const credentialsInterceptor: HttpInterceptorFn = (request, next) => {
 
   return next(
     request.clone({
+      cache: 'no-store',
       withCredentials: true,
       setHeaders: {
         'Accept-Language': document.documentElement.lang || 'ru',
