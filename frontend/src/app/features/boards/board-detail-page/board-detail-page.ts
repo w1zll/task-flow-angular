@@ -2,6 +2,7 @@ import { Dialog } from '@angular/cdk/dialog';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   effect,
   inject,
@@ -16,6 +17,7 @@ import { firstValueFrom } from 'rxjs';
 import { BoardResponseDto, ColumnResponseDto, TaskResponseDto } from '@core/api/generated';
 import { QueryCacheStore } from '@core/cache/query-cache.store';
 import { queryKeys } from '@core/cache/query-key';
+import { BoardRealtime } from '@core/realtime/board-realtime';
 import { BoardMembersDialog } from '@features/board-members/board-members-dialog/board-members-dialog';
 import { BoardCatalogStore } from '@features/boards/board-catalog.store';
 import {
@@ -51,8 +53,10 @@ export class BoardDetailPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly dialog = inject(Dialog);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly store = inject(BoardCatalogStore);
   private readonly cache = inject(QueryCacheStore);
+  protected readonly realtime = inject(BoardRealtime);
   protected readonly kanban = inject(KanbanStore);
   private readonly paramMap = toSignal(this.route.paramMap, {
     initialValue: this.route.snapshot.paramMap,
@@ -77,6 +81,7 @@ export class BoardDetailPage {
   protected readonly loading = signal(true);
   protected readonly errorKey = signal<string | null>(null);
   private loadEpoch = 0;
+  private realtimeCleanup: (() => void) | null = null;
 
   constructor() {
     effect(() => {
@@ -85,6 +90,17 @@ export class BoardDetailPage {
       if (boardId && workspaceId) {
         untracked(() => void this.load(boardId, workspaceId));
       }
+    });
+    effect(() => {
+      const boardId = this.boardId();
+      untracked(() => {
+        this.realtimeCleanup?.();
+        this.realtimeCleanup = boardId ? this.realtime.open(boardId) : null;
+      });
+    });
+    this.destroyRef.onDestroy(() => {
+      this.realtimeCleanup?.();
+      this.realtimeCleanup = null;
     });
   }
 

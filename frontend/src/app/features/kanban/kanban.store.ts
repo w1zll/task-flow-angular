@@ -13,11 +13,32 @@ import {
 } from '@core/api/generated';
 import { OptimisticTransaction, QueryCacheStore } from '@core/cache/query-cache.store';
 import { queryKeys } from '@core/cache/query-key';
+import {
+  BoardRealtime,
+  BoardRealtimeAckError,
+  BoardRealtimeUnavailableError,
+} from '@core/realtime/board-realtime';
 import { BoardCatalogStore } from '@features/boards/board-catalog.store';
 
 export type MoveDirection = 'backward' | 'forward';
 
 const mutationErrorKey = (error: unknown): string => {
+  if (error instanceof BoardRealtimeAckError) {
+    if (error.code === 'permission_changed') return 'kanban.errors.forbidden';
+    if (
+      error.code === 'task_deleted' ||
+      error.code === 'column_deleted' ||
+      error.code === 'board_deleted'
+    ) {
+      return 'kanban.errors.notFound';
+    }
+    if (error.code === 'task_already_moved' || error.code === 'task_order_conflict') {
+      return 'kanban.errors.conflict';
+    }
+    if (error.code === 'validation_failed') return 'kanban.errors.invalidData';
+    return 'kanban.errors.unavailable';
+  }
+  if (error instanceof BoardRealtimeUnavailableError) return 'kanban.errors.unavailable';
   if (!(error instanceof ApiError)) return 'kanban.errors.unknown';
   if (error.kind === 'forbidden') return 'kanban.errors.forbidden';
   if (error.kind === 'not-found') return 'kanban.errors.notFound';
@@ -30,11 +51,13 @@ const mutationErrorKey = (error: unknown): string => {
 };
 
 const shouldReloadBoard = (error: unknown): boolean =>
-  error instanceof ApiError &&
-  (error.kind === 'network' ||
-    error.kind === 'server' ||
-    error.kind === 'unexpected-response' ||
-    error.kind === 'conflict');
+  error instanceof BoardRealtimeAckError ||
+  error instanceof BoardRealtimeUnavailableError ||
+  (error instanceof ApiError &&
+    (error.kind === 'network' ||
+      error.kind === 'server' ||
+      error.kind === 'unexpected-response' ||
+      error.kind === 'conflict'));
 
 const sortColumns = (columns: readonly ColumnResponseDto[]): ColumnResponseDto[] =>
   [...columns]
@@ -123,6 +146,7 @@ export class KanbanStore {
   private readonly boards = inject(BoardCatalogStore);
   private readonly cache = inject(QueryCacheStore);
   private readonly columnsApi = inject(ColumnsApi);
+  private readonly realtime = inject(BoardRealtime);
   private readonly tasksApi = inject(TasksApi);
 
   readonly busyId = signal<string | null>(null);
@@ -283,8 +307,9 @@ export class KanbanStore {
     this.start(taskId);
 
     try {
-      const updated = await firstValueFrom(this.tasksApi.update({ id: taskId, body: data }));
-      this.reconcile(transaction, boardId, (board) => upsertBoardTask(board, updated));
+      await this.realtime.updateTask(boardId, taskId, data);
+      transaction.commit();
+      this.cache.invalidate(queryKeys.boardsCatalog);
       return this.currentBoard(boardId);
     } catch (error) {
       return this.fail(transaction, boardId, error);
@@ -323,13 +348,9 @@ export class KanbanStore {
     this.start(task.id);
 
     try {
-      const moved = await firstValueFrom(
-        this.tasksApi.move({
-          id: task.id,
-          body: { columnId: targetColumnId, order },
-        }),
-      );
-      this.reconcile(transaction, board.id, (current) => upsertBoardTask(current, moved));
+      await this.realtime.moveTask(board.id, task.id, targetColumnId, order, task.columnId);
+      transaction.commit();
+      this.cache.invalidate(queryKeys.boardsCatalog);
       return this.currentBoard(board.id, board);
     } catch (error) {
       return this.fail(transaction, board.id, error);
@@ -359,12 +380,7 @@ export class KanbanStore {
     this.start(task.id);
 
     try {
-      await firstValueFrom(
-        this.tasksApi.reorder({
-          columnId: column.id,
-          body: { taskIds },
-        }),
-      );
+      await this.realtime.reorderTask(board.id, column.id, taskIds);
       transaction.commit();
       this.cache.invalidate(queryKeys.boardsCatalog);
       return this.currentBoard(board.id, board);
@@ -428,10 +444,44 @@ export class KanbanStore {
   private fail(transaction: OptimisticTransaction, boardId: string, error: unknown): never {
     transaction.rollback();
     this.errorKey.set(mutationErrorKey(error));
+    if (
+      (error instanceof BoardRealtimeAckError && error.code === 'permission_changed') ||
+      (error instanceof ApiError && error.kind === 'forbidden')
+    ) {
+      this.removeWriteCapabilities(boardId);
+    }
     if (shouldReloadBoard(error)) {
       void this.boards.detail(boardId, true).catch(() => undefined);
     }
     throw error;
+  }
+
+  private removeWriteCapabilities(boardId: string): void {
+    const restrict = (board: BoardResponseDto): BoardResponseDto => ({
+      ...board,
+      currentUserRole: 'viewer',
+      capabilities: {
+        ...board.capabilities,
+        canDeleteBoard: false,
+        canEditBoardContent: false,
+        canManageBoardMembers: false,
+        canManageBoardSettings: false,
+        canManageColumns: false,
+        canUseWhiteboard: false,
+      },
+    });
+    const detail = this.cache.get<BoardResponseDto>(queryKeys.boardDetail(boardId));
+    if (detail) {
+      this.cache.updateFromServer<BoardResponseDto>(queryKeys.boardDetail(boardId), (board) =>
+        restrict(board ?? detail),
+      );
+    }
+    if (this.cache.get<readonly BoardResponseDto[]>(queryKeys.boardsCatalog)) {
+      this.cache.updateFromServer<readonly BoardResponseDto[]>(
+        queryKeys.boardsCatalog,
+        (boards = []) => boards.map((board) => (board.id === boardId ? restrict(board) : board)),
+      );
+    }
   }
 }
 

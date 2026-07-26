@@ -1,4 +1,6 @@
-# TaskFlow Angular 21
+# Таск-трекер TaskFlow на Angular 21
+
+Ссылка на онлайн-демо - <https://vercel.com>
 
 ## Стек frontend
 
@@ -14,7 +16,7 @@
 - ng-openapi-gen 1.0.5;
 - Angular Service Worker 21.2.18.
 
-## Angular
+## Стек Angular 21
 
 - standalone components и lazy routes;
 - `ChangeDetectionStrategy.OnPush` и zoneless runtime;
@@ -22,3 +24,9 @@
 - control flow: `@if`, `@for`, `@switch`;
 - `inject()`, `DestroyRef` и `takeUntilDestroyed`;
 - SSR, hydration и prerender.
+
+## Socket.IO
+
+- через сокеты выполняются изменение/завершение, перемещение и перестановка задач;
+- создание и удаление задач выполняются через REST, а socket events согласуют cache между вкладками;
+- операции с колонками остаются REST-only.

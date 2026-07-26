@@ -255,6 +255,26 @@ export const QueryCacheStore = signalStore(
           pendingMutations: [],
         });
       },
+      updateFromServer<T>(
+        key: QueryKey,
+        updater: (current: T | undefined) => T,
+        options: { readonly skipIfPending?: boolean } = {},
+      ): void {
+        const hash = hashQueryKey(key);
+        const current = store.entries()[hash] as QueryEntry<T> | undefined;
+        if (options.skipIfPending && current?.pendingMutations.length) return;
+
+        write(key, {
+          key,
+          status: 'success',
+          data: updater(current?.data),
+          updatedAt: Date.now(),
+          stale: false,
+          refreshing: false,
+          optimistic: (current?.pendingMutations.length ?? 0) > 0,
+          pendingMutations: current?.pendingMutations ?? [],
+        });
+      },
       optimisticUpdate<T>(key: QueryKey, updater: (current: T | undefined) => T): () => void {
         const hash = hashQueryKey(key);
         const snapshot = store.entries()[hash] as QueryEntry<T> | undefined;

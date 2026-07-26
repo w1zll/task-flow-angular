@@ -242,6 +242,13 @@
   "kanban": {
     "boardLabel": "Kanban board",
     "pending": "Saving…",
+    "realtime": {
+      "idle": "Sync paused",
+      "connecting": "Connecting sync…",
+      "connected": "Sync active",
+      "reconnecting": "Restoring sync…",
+      "unavailable": "Sync unavailable"
+    },
     "mobile": {
       "activeColumn": "Active column"
     },

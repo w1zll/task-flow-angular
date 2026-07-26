@@ -34,6 +34,14 @@
         </div>
       </div>
       <div class="board-page__actions">
+        <span
+          class="board-page__realtime"
+          [attr.data-status]="realtime.status()"
+          role="status"
+          aria-live="polite"
+        >
+          {{ 'kanban.realtime.' + realtime.status() | transloco }}
+        </span>
         @if (currentBoard.capabilities.canManageColumns) {
           <app-button [disabled]="kanban.busyId() !== null" (pressed)="openCreateColumn()">
             {{ 'kanban.column.create.action' | transloco }}
