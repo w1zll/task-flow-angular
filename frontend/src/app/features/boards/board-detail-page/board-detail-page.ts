@@ -15,6 +15,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { firstValueFrom } from 'rxjs';
 
 import { BoardResponseDto, ColumnResponseDto, TaskResponseDto } from '@core/api/generated';
+import { AuthStore } from '@core/auth/auth.store';
 import { QueryCacheStore } from '@core/cache/query-cache.store';
 import { queryKeys } from '@core/cache/query-key';
 import { BoardRealtime } from '@core/realtime/board-realtime';
@@ -35,6 +36,21 @@ import {
 } from '@features/kanban/kanban-column/kanban-column';
 import { KanbanStore, MoveDirection } from '@features/kanban/kanban.store';
 import {
+  TaskFiltersDialog,
+  TaskFiltersDialogData,
+} from '@features/kanban/task-filters-dialog/task-filters-dialog';
+import {
+  TaskFilterAssignee,
+  TaskFilterState,
+  defaultTaskFilters,
+  hasTaskFilters,
+  parseTaskFilters,
+  serializeTaskFilters,
+  taskFilterSignature,
+  taskMatchesFilters,
+} from '@features/kanban/task-filters/task-filter.model';
+import { TaskFilters } from '@features/kanban/task-filters/task-filters';
+import {
   TaskEditorDialog,
   TaskEditorDialogData,
 } from '@features/kanban/task-editor-dialog/task-editor-dialog';
@@ -44,7 +60,15 @@ import { LoadingSkeleton } from '@shared/ui/loading-skeleton/loading-skeleton';
 
 @Component({
   selector: 'app-board-detail-page',
-  imports: [AppButton, ErrorState, KanbanColumn, LoadingSkeleton, RouterLink, TranslocoPipe],
+  imports: [
+    AppButton,
+    ErrorState,
+    KanbanColumn,
+    LoadingSkeleton,
+    RouterLink,
+    TaskFilters,
+    TranslocoPipe,
+  ],
   templateUrl: './board-detail-page.html',
   styleUrl: './board-detail-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -55,6 +79,7 @@ export class BoardDetailPage {
   private readonly dialog = inject(Dialog);
   private readonly destroyRef = inject(DestroyRef);
   private readonly store = inject(BoardCatalogStore);
+  private readonly auth = inject(AuthStore);
   private readonly cache = inject(QueryCacheStore);
   protected readonly realtime = inject(BoardRealtime);
   protected readonly kanban = inject(KanbanStore);
@@ -63,6 +88,9 @@ export class BoardDetailPage {
   });
   private readonly parentParamMap = toSignal(this.route.parent!.paramMap, {
     initialValue: this.route.parent!.snapshot.paramMap,
+  });
+  private readonly queryParamMap = toSignal(this.route.queryParamMap, {
+    initialValue: this.route.snapshot.queryParamMap,
   });
 
   protected readonly boardId = computed(() => this.paramMap().get('boardId') ?? '');
@@ -73,11 +101,54 @@ export class BoardDetailPage {
   protected readonly columns = computed(() =>
     [...(this.board()?.columns ?? [])].sort((a, b) => a.order - b.order),
   );
+  protected readonly filters = computed(() => parseTaskFilters(this.queryParamMap()));
+  protected readonly hasActiveFilters = computed(() => hasTaskFilters(this.filters()));
+  protected readonly assignees = computed<readonly TaskFilterAssignee[]>(() => {
+    const people = new Map<string, string>();
+    for (const member of this.board()?.members ?? []) {
+      people.set(member.userId, member.user.name);
+    }
+    for (const column of this.columns()) {
+      for (const task of column.tasks ?? []) {
+        const id = task.assigneeId ?? task.assignee?.id;
+        const name = task.assignee?.name ?? task.assigneeName;
+        if (id && name) people.set(id, name);
+      }
+    }
+    return [...people]
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  });
+  protected readonly availableLabels = computed(() =>
+    Array.from(
+      new Set(
+        this.columns().flatMap((column) =>
+          (column.tasks ?? []).flatMap((task) => task.labels ?? []),
+        ),
+      ),
+    ).sort((a, b) => a.localeCompare(b)),
+  );
+  protected readonly filteredColumns = computed(() => {
+    const filters = this.filters();
+    const userId = this.auth.user()?.id ?? null;
+    const now = new Date();
+    return this.columns().map((column) => ({
+      ...column,
+      tasks: (column.tasks ?? []).filter((task) => taskMatchesFilters(task, filters, userId, now)),
+    }));
+  });
+  protected readonly totalTaskCount = computed(() =>
+    this.columns().reduce((count, column) => count + (column.tasks?.length ?? 0), 0),
+  );
+  protected readonly visibleTaskCount = computed(() =>
+    this.filteredColumns().reduce((count, column) => count + (column.tasks?.length ?? 0), 0),
+  );
   protected readonly activeColumnId = signal('');
   protected readonly activeColumn = computed(() => {
-    const columns = this.columns();
+    const columns = this.filteredColumns();
     return columns.find((column) => column.id === this.activeColumnId()) ?? columns[0] ?? null;
   });
+  protected readonly filterFeedbackTitle = signal<string | null>(null);
   protected readonly loading = signal(true);
   protected readonly errorKey = signal<string | null>(null);
   private loadEpoch = 0;
@@ -97,6 +168,34 @@ export class BoardDetailPage {
         this.realtimeCleanup?.();
         this.realtimeCleanup = boardId ? this.realtime.open(boardId) : null;
       });
+    });
+    let previousBoardId = '';
+    let previousFilterSignature = '';
+    let previousVisibleIds = new Set<string>();
+    effect(() => {
+      const boardId = this.boardId();
+      const signature = taskFilterSignature(this.filters());
+      const allTasks = this.columns().flatMap((column) => column.tasks ?? []);
+      const allTaskById = new Map(allTasks.map((task) => [task.id, task]));
+      const visibleIds = new Set(
+        this.filteredColumns().flatMap((column) => (column.tasks ?? []).map((task) => task.id)),
+      );
+
+      if (boardId !== previousBoardId || signature !== previousFilterSignature) {
+        previousBoardId = boardId;
+        previousFilterSignature = signature;
+        previousVisibleIds = visibleIds;
+        untracked(() => this.filterFeedbackTitle.set(null));
+        return;
+      }
+
+      const hiddenTaskId = [...previousVisibleIds].find(
+        (taskId) => !visibleIds.has(taskId) && allTaskById.has(taskId),
+      );
+      if (hiddenTaskId) {
+        untracked(() => this.filterFeedbackTitle.set(allTaskById.get(hiddenTaskId)?.title ?? ''));
+      }
+      previousVisibleIds = visibleIds;
     });
     this.destroyRef.onDestroy(() => {
       this.realtimeCleanup?.();
@@ -128,6 +227,36 @@ export class BoardDetailPage {
     } catch (error) {
       this.errorKey.set(this.store.errorFor(error));
     }
+  }
+
+  protected setFilters(filters: TaskFilterState): void {
+    this.filterFeedbackTitle.set(null);
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: serializeTaskFilters(filters),
+    });
+  }
+
+  protected clearFilters(): void {
+    this.setFilters(defaultTaskFilters);
+  }
+
+  protected async openFilters(): Promise<void> {
+    const result = await firstValueFrom(
+      this.dialog.open<TaskFilterState>(TaskFiltersDialog, {
+        ariaLabelledBy: 'task-filters-title',
+        data: {
+          filters: this.filters(),
+          assignees: this.assignees(),
+          labels: this.availableLabels(),
+        } satisfies TaskFiltersDialogData,
+      }).closed,
+    );
+    if (result) this.setFilters(result);
+  }
+
+  protected dismissFilterFeedback(): void {
+    this.filterFeedbackTitle.set(null);
   }
 
   protected openCreateColumn(): void {

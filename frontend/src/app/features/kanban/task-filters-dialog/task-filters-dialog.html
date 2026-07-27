@@ -1,0 +1,25 @@
+<section class="dialog">
+  <header>
+    <div>
+      <h2 id="task-filters-title">{{ 'kanban.filters.title' | transloco }}</h2>
+      <p>{{ 'kanban.filters.description' | transloco }}</p>
+    </div>
+    <app-button variant="ghost" (pressed)="close()">
+      {{ 'actions.close' | transloco }}
+    </app-button>
+  </header>
+
+  <app-task-filters
+    [filters]="draft()"
+    [assignees]="data.assignees"
+    [labels]="data.labels"
+    (filtersChange)="draft.set($event)"
+  />
+
+  <footer>
+    <app-button variant="secondary" (pressed)="close()">
+      {{ 'actions.cancel' | transloco }}
+    </app-button>
+    <app-button (pressed)="apply()">{{ 'kanban.filters.apply' | transloco }}</app-button>
+  </footer>
+</section>

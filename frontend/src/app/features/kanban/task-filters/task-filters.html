@@ -1,0 +1,154 @@
+<section class="filters" [attr.aria-label]="'kanban.filters.title' | transloco">
+  <div class="filters__primary">
+    <label class="field field--search">
+      <span>{{ 'kanban.filters.search' | transloco }}</span>
+      <input
+        type="search"
+        maxlength="200"
+        [value]="filters().search"
+        [placeholder]="'kanban.filters.searchPlaceholder' | transloco"
+        (change)="setSearch($event)"
+      />
+    </label>
+
+    <label class="field">
+      <span>{{ 'kanban.filters.assignee' | transloco }}</span>
+      <select [value]="filters().assigneeId ?? ''" (change)="setAssignee($event)">
+        <option value="">{{ 'kanban.filters.anyAssignee' | transloco }}</option>
+        @for (assignee of assignees(); track assignee.id) {
+          <option [value]="assignee.id">{{ assignee.name }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="field">
+      <span>{{ 'kanban.filters.status.label' | transloco }}</span>
+      <select [value]="filters().status" (change)="setStatus($event)">
+        @for (status of statusValues; track status) {
+          <option [value]="status">{{ 'kanban.filters.status.' + status | transloco }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="field">
+      <span>{{ 'kanban.filters.due.label' | transloco }}</span>
+      <select [value]="filters().due" (change)="setDue($event)">
+        @for (due of dueValues; track due) {
+          <option [value]="due">{{ 'kanban.filters.due.' + due | transloco }}</option>
+        }
+      </select>
+    </label>
+  </div>
+
+  <div class="filters__groups">
+    <fieldset>
+      <legend>{{ 'kanban.filters.assignment' | transloco }}</legend>
+      <label class="check">
+        <input type="checkbox" [checked]="filters().mine" (change)="setFlag('mine', $event)" />
+        <span>{{ 'kanban.filters.mine' | transloco }}</span>
+      </label>
+      <label class="check">
+        <input
+          type="checkbox"
+          [checked]="filters().unassigned"
+          (change)="setFlag('unassigned', $event)"
+        />
+        <span>{{ 'kanban.filters.unassigned' | transloco }}</span>
+      </label>
+    </fieldset>
+
+    <fieldset>
+      <legend>{{ 'kanban.filters.priority' | transloco }}</legend>
+      @for (priority of priorityValues; track priority) {
+        <label class="check">
+          <input
+            type="checkbox"
+            [checked]="filters().priorities.includes(priority)"
+            (change)="togglePriority(priority)"
+          />
+          <span>{{ 'kanban.priority.' + priority | transloco }}</span>
+        </label>
+      }
+    </fieldset>
+
+    @if (labels().length) {
+      <fieldset>
+        <legend>{{ 'kanban.filters.labels' | transloco }}</legend>
+        <div class="filters__labels">
+          @for (label of labels(); track label) {
+            <label class="check">
+              <input
+                type="checkbox"
+                [checked]="filters().labels.includes(label)"
+                (change)="toggleLabel(label)"
+              />
+              <span>{{ label }}</span>
+            </label>
+          }
+        </div>
+      </fieldset>
+    }
+  </div>
+
+  <div class="filters__chips" aria-live="polite">
+    @if (filters().search) {
+      <button type="button" (click)="patch({ search: '' })">
+        {{ 'kanban.filters.searchChip' | transloco: { value: filters().search } }} ×
+      </button>
+    }
+    @if (filters().assigneeId; as assigneeId) {
+      <button type="button" (click)="patch({ assigneeId: null })">
+        {{
+          'kanban.filters.assigneeChip'
+            | transloco
+              : {
+                  value: assigneeName(assigneeId),
+                }
+        }}
+        ×
+      </button>
+    }
+    @if (filters().mine) {
+      <button type="button" (click)="patch({ mine: false })">
+        {{ 'kanban.filters.mine' | transloco }} ×
+      </button>
+    }
+    @if (filters().unassigned) {
+      <button type="button" (click)="patch({ unassigned: false })">
+        {{ 'kanban.filters.unassigned' | transloco }} ×
+      </button>
+    }
+    @for (priority of filters().priorities; track priority) {
+      <button type="button" (click)="togglePriority(priority)">
+        {{ 'kanban.priority.' + priority | transloco }} ×
+      </button>
+    }
+    @for (label of filters().labels; track label) {
+      <button type="button" (click)="toggleLabel(label)">{{ label }} ×</button>
+    }
+    @if (filters().status !== 'all') {
+      <button type="button" (click)="patch({ status: 'all' })">
+        {{ 'kanban.filters.status.' + filters().status | transloco }} ×
+      </button>
+    }
+    @if (filters().due !== 'all') {
+      <button type="button" (click)="patch({ due: 'all' })">
+        {{ 'kanban.filters.due.' + filters().due | transloco }} ×
+      </button>
+    }
+    @if (
+      filters().search ||
+      filters().assigneeId ||
+      filters().mine ||
+      filters().unassigned ||
+      filters().priorities.length ||
+      filters().labels.length ||
+      filters().status !== 'all' ||
+      filters().due !== 'all'
+    ) {
+      <button class="filters__clear" type="button" (click)="reset()">
+        {{ 'kanban.filters.clear' | transloco }}
+      </button>
+    }
+  </div>
+</section>

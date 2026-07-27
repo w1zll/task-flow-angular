@@ -29,6 +29,7 @@ export class KanbanColumn {
   readonly index = input.required<number>();
   readonly canEditTasks = input(false);
   readonly canManageColumns = input(false);
+  readonly filterActive = input(false);
   readonly busyId = input<string | null>(null);
 
   readonly createTask = output<void>();

@@ -66,10 +66,58 @@
     }
 
     @if (columns().length) {
+      <div class="board-page__filters-desktop">
+        <app-task-filters
+          [filters]="filters()"
+          [assignees]="assignees()"
+          [labels]="availableLabels()"
+          (filtersChange)="setFilters($event)"
+        />
+      </div>
+
+      <div class="board-page__filters-mobile">
+        <app-button variant="secondary" (pressed)="openFilters()">
+          {{
+            (hasActiveFilters() ? 'kanban.filters.mobileActive' : 'kanban.filters.mobileAction')
+              | transloco: { count: visibleTaskCount() }
+          }}
+        </app-button>
+        @if (hasActiveFilters()) {
+          <app-button variant="ghost" (pressed)="clearFilters()">
+            {{ 'kanban.filters.clear' | transloco }}
+          </app-button>
+        }
+      </div>
+
+      @if (hasActiveFilters()) {
+        <p class="board-page__filter-summary" role="status" aria-live="polite">
+          {{
+            'kanban.filters.result'
+              | transloco: { visible: visibleTaskCount(), total: totalTaskCount() }
+          }}
+        </p>
+      }
+
+      @if (filterFeedbackTitle(); as taskTitle) {
+        <div class="board-page__filter-feedback" role="status">
+          <p>
+            {{ 'kanban.filters.hiddenAfterChange' | transloco: { title: taskTitle } }}
+          </p>
+          <div>
+            <app-button variant="secondary" (pressed)="clearFilters()">
+              {{ 'kanban.filters.showAll' | transloco }}
+            </app-button>
+            <app-button variant="ghost" (pressed)="dismissFilterFeedback()">
+              {{ 'actions.close' | transloco }}
+            </app-button>
+          </div>
+        </div>
+      }
+
       <label class="board-page__mobile-column">
         <span>{{ 'kanban.mobile.activeColumn' | transloco }}</span>
         <select [value]="activeColumn()?.id ?? ''" (change)="selectActiveColumn($event)">
-          @for (column of columns(); track column.id) {
+          @for (column of filteredColumns(); track column.id) {
             <option [value]="column.id">
               {{ column.title }} ({{ column.tasks?.length ?? 0 }})
             </option>
@@ -78,13 +126,14 @@
       </label>
 
       <div class="kanban-desktop" [attr.aria-label]="'kanban.boardLabel' | transloco">
-        @for (column of columns(); track column.id; let columnIndex = $index) {
+        @for (column of filteredColumns(); track column.id; let columnIndex = $index) {
           <app-kanban-column
             [column]="column"
             [columns]="columns()"
             [index]="columnIndex"
             [canEditTasks]="currentBoard.capabilities.canEditBoardContent"
             [canManageColumns]="currentBoard.capabilities.canManageColumns"
+            [filterActive]="hasActiveFilters()"
             [busyId]="kanban.busyId()"
             (createTask)="openCreateTask(column)"
             (rename)="openRenameColumn(column)"
@@ -104,9 +153,10 @@
           <app-kanban-column
             [column]="column"
             [columns]="columns()"
-            [index]="columns().indexOf(column)"
+            [index]="filteredColumns().indexOf(column)"
             [canEditTasks]="currentBoard.capabilities.canEditBoardContent"
             [canManageColumns]="currentBoard.capabilities.canManageColumns"
+            [filterActive]="hasActiveFilters()"
             [busyId]="kanban.busyId()"
             (createTask)="openCreateTask(column)"
             (rename)="openRenameColumn(column)"

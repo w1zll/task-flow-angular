@@ -37,16 +37,18 @@
       <app-button variant="ghost" [disabled]="busy()" (pressed)="toggleCompleted.emit()">
         {{ (task().isCompleted ? 'kanban.task.reopen' : 'kanban.task.complete') | transloco }}
       </app-button>
-      <app-button variant="ghost" [disabled]="busy() || index() === 0" (pressed)="moveUp.emit()">
-        {{ 'kanban.task.up' | transloco }}
-      </app-button>
-      <app-button
-        variant="ghost"
-        [disabled]="busy() || index() === count() - 1"
-        (pressed)="moveDown.emit()"
-      >
-        {{ 'kanban.task.down' | transloco }}
-      </app-button>
+      @if (canReorder()) {
+        <app-button variant="ghost" [disabled]="busy() || index() === 0" (pressed)="moveUp.emit()">
+          {{ 'kanban.task.up' | transloco }}
+        </app-button>
+        <app-button
+          variant="ghost"
+          [disabled]="busy() || index() === count() - 1"
+          (pressed)="moveDown.emit()"
+        >
+          {{ 'kanban.task.down' | transloco }}
+        </app-button>
+      }
       <label>
         <span>{{ 'kanban.task.moveTo' | transloco }}</span>
         <select [value]="task().columnId" [disabled]="busy()" (change)="selectColumn($event)">

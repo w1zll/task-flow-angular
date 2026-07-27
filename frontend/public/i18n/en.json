@@ -252,6 +252,43 @@
     "mobile": {
       "activeColumn": "Active column"
     },
+    "filters": {
+      "title": "Task filters",
+      "description": "Choose which tasks to display. Applied filters are saved in the page address.",
+      "search": "Search",
+      "searchPlaceholder": "Title or description",
+      "searchChip": "Search: {{ value }}",
+      "assignee": "Assignee",
+      "anyAssignee": "Any assignee",
+      "assigneeChip": "Assignee: {{ value }}",
+      "assignment": "Assignment",
+      "mine": "My tasks",
+      "unassigned": "Unassigned",
+      "priority": "Priority",
+      "labels": "Labels",
+      "status": {
+        "label": "Status",
+        "all": "Any status",
+        "open": "Open",
+        "completed": "Completed"
+      },
+      "due": {
+        "label": "Due date",
+        "all": "Any due date",
+        "overdue": "Overdue",
+        "none": "No due date",
+        "today": "Due today",
+        "week": "Due this week"
+      },
+      "apply": "Show tasks",
+      "clear": "Clear all",
+      "mobileAction": "Filters",
+      "mobileActive": "Filters · {{ count }} found",
+      "result": "Showing {{ visible }} of {{ total }} tasks",
+      "columnEmpty": "No tasks in this column match the active filters.",
+      "hiddenAfterChange": "“{{ title }}” no longer matches the active filters and is now hidden.",
+      "showAll": "Show all"
+    },
     "empty": {
       "description": "Create the first column to start adding tasks."
     },

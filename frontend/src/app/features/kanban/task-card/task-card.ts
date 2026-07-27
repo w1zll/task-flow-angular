@@ -18,6 +18,7 @@ export class TaskCard {
   readonly index = input.required<number>();
   readonly count = input.required<number>();
   readonly canEdit = input(false);
+  readonly canReorder = input(true);
   readonly busy = input(false);
   readonly pending = input(false);
 

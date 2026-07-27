@@ -52,6 +52,30 @@
   @apply rounded-control border border-danger/40 bg-danger/10 px-3 py-2.5 text-sm text-danger;
 }
 
+.board-page__filters-desktop {
+  @apply rounded-xl border border-border bg-surface p-4 shadow-sm;
+}
+
+.board-page__filters-mobile {
+  @apply hidden;
+}
+
+.board-page__filter-summary {
+  @apply text-sm font-semibold text-muted;
+}
+
+.board-page__filter-feedback {
+  @apply flex items-center justify-between gap-3 rounded-control border border-primary/30 bg-primary-soft px-4 py-3 text-sm text-foreground;
+}
+
+.board-page__filter-feedback p {
+  @apply min-w-0 break-words;
+}
+
+.board-page__filter-feedback div {
+  @apply flex shrink-0 gap-2;
+}
+
 .kanban-desktop {
   @apply flex items-start gap-4 overflow-x-auto pb-4;
 }
@@ -84,6 +108,22 @@
 
   .kanban-desktop {
     @apply hidden;
+  }
+
+  .board-page__filters-desktop {
+    @apply hidden;
+  }
+
+  .board-page__filters-mobile {
+    @apply flex flex-wrap gap-2;
+  }
+
+  .board-page__filter-feedback {
+    @apply grid;
+  }
+
+  .board-page__filter-feedback div {
+    @apply flex-wrap;
   }
 
   .kanban-mobile {

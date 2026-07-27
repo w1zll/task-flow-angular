@@ -1,0 +1,75 @@
+@reference "#app.css";
+
+.filters {
+  @apply grid gap-4;
+}
+
+.filters__primary {
+  @apply grid grid-cols-[minmax(12rem,2fr)_repeat(3,minmax(9rem,1fr))] gap-3;
+}
+
+.field {
+  @apply grid gap-1.5 text-xs font-bold text-muted;
+}
+
+.field input,
+.field select {
+  @apply min-h-11 w-full rounded-control border border-border bg-canvas px-3 text-sm font-normal text-foreground;
+}
+
+.filters__groups {
+  @apply flex flex-wrap gap-4;
+}
+
+fieldset {
+  @apply flex min-w-0 flex-wrap items-center gap-2 border-0 p-0;
+}
+
+legend {
+  @apply mb-2 text-xs font-bold text-muted;
+}
+
+.check {
+  @apply flex min-h-9 items-center gap-2 rounded-control border border-border bg-canvas px-2.5 text-sm;
+}
+
+.check input {
+  @apply size-4 shrink-0 accent-primary;
+}
+
+.filters__labels {
+  @apply flex max-h-28 flex-wrap gap-2 overflow-y-auto;
+}
+
+.filters__chips {
+  @apply flex min-w-0 flex-wrap items-center gap-2;
+}
+
+.filters__chips button {
+  @apply max-w-full break-all rounded-full border border-primary/30 bg-primary-soft px-3 py-1.5 text-left text-xs font-semibold text-primary;
+}
+
+.filters__chips .filters__clear {
+  @apply border-border bg-surface text-muted;
+}
+
+@media (max-width: 900px) {
+  .filters__primary {
+    @apply grid-cols-2;
+  }
+}
+
+@media (max-width: 639px) {
+  .filters__primary {
+    @apply grid-cols-1;
+  }
+
+  .filters__groups,
+  fieldset {
+    @apply grid;
+  }
+
+  .check {
+    @apply min-h-11;
+  }
+}

@@ -54,6 +54,7 @@
         [index]="taskIndex"
         [count]="tasks().length"
         [canEdit]="canEditTasks()"
+        [canReorder]="!filterActive()"
         [busy]="busyId() !== null"
         [pending]="busyId() === task.id || task.id.startsWith('optimistic:')"
         (edit)="editTask.emit(task)"
@@ -64,7 +65,9 @@
         (moveDown)="reorderTask.emit({ task, direction: 'forward' })"
       />
     } @empty {
-      <p class="kanban-column__empty">{{ 'kanban.column.empty' | transloco }}</p>
+      <p class="kanban-column__empty">
+        {{ (filterActive() ? 'kanban.filters.columnEmpty' : 'kanban.column.empty') | transloco }}
+      </p>
     }
   </div>
 </section>
