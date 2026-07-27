@@ -94,7 +94,7 @@
   @apply hidden;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   .shell {
     @apply block min-h-0;
   }

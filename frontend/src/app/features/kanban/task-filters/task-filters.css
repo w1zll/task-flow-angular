@@ -1,24 +1,24 @@
 @reference "#app.css";
 
 .filters {
-  @apply grid gap-4;
+  @apply grid min-w-0 gap-4;
 }
 
 .filters__primary {
-  @apply grid grid-cols-[minmax(12rem,2fr)_repeat(3,minmax(9rem,1fr))] gap-3;
+  @apply grid min-w-0 grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))] gap-3;
 }
 
 .field {
-  @apply grid gap-1.5 text-xs font-bold text-muted;
+  @apply grid min-w-0 gap-1.5 text-xs font-bold text-muted;
 }
 
 .field input,
 .field select {
-  @apply min-h-11 w-full rounded-control border border-border bg-canvas px-3 text-sm font-normal text-foreground;
+  @apply min-h-11 w-full min-w-0 max-w-full rounded-control border border-border bg-canvas px-3 text-sm font-normal text-foreground;
 }
 
 .filters__groups {
-  @apply flex flex-wrap gap-4;
+  @apply flex min-w-0 flex-wrap gap-4;
 }
 
 fieldset {
@@ -38,7 +38,7 @@ legend {
 }
 
 .filters__labels {
-  @apply flex max-h-28 flex-wrap gap-2 overflow-y-auto;
+  @apply flex min-w-0 max-w-full max-h-28 flex-wrap gap-2 overflow-y-auto;
 }
 
 .filters__chips {
@@ -53,7 +53,7 @@ legend {
   @apply border-border bg-surface text-muted;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1023px) {
   .filters__primary {
     @apply grid-cols-2;
   }

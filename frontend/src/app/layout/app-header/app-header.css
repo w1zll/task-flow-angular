@@ -58,7 +58,7 @@ button.auth-link {
   @apply sr-only;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   .header {
     @apply static;
   }
