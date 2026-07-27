@@ -2,6 +2,7 @@ import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/
 import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { provideClientHydration, withHttpTransferCacheOptions } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
+import { provideServiceWorker } from '@angular/service-worker';
 import { provideTransloco } from '@jsverse/transloco';
 import { provideTaiga } from '@taiga-ui/core';
 
@@ -25,6 +26,10 @@ export const appConfig: ApplicationConfig = {
       scrollbars: 'native',
     }),
     provideRouter(routes),
+    provideServiceWorker('sw-check.js', {
+      enabled: environment.production,
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
     provideHttpClient(
       withFetch(),
       withInterceptors([credentialsInterceptor, apiErrorInterceptor, authRefreshInterceptor]),

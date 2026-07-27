@@ -1,0 +1,36 @@
+{
+  "name": "TaskFlow — пространства, доски и задачи",
+  "short_name": "TaskFlow",
+  "description": "Управление рабочими пространствами, досками и задачами без лишней сложности.",
+  "start_url": "/workspaces",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#669266",
+  "icons": [
+    {
+      "src": "/icons/taskflow-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/taskflow-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/taskflow-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/taskflow-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
