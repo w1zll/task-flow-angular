@@ -1,8 +1,9 @@
-import { Dialog } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { TuiButton, TuiDialogService } from '@taiga-ui/core';
+import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { firstValueFrom } from 'rxjs';
 
 import { BoardResponseDto } from '@core/api/generated';
@@ -20,7 +21,7 @@ import { LoadingSkeleton } from '@shared/ui/loading-skeleton/loading-skeleton';
 
 @Component({
   selector: 'app-workspace-boards-page',
-  imports: [AppButton, EmptyState, ErrorState, LoadingSkeleton, TranslocoPipe],
+  imports: [AppButton, EmptyState, ErrorState, LoadingSkeleton, TranslocoPipe, TuiButton],
   templateUrl: './workspace-boards-page.html',
   styleUrl: './workspace-boards-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -28,7 +29,8 @@ import { LoadingSkeleton } from '@shared/ui/loading-skeleton/loading-skeleton';
 export class WorkspaceBoardsPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly dialog = inject(Dialog);
+  private readonly dialog = inject(TuiDialogService);
+  private readonly transloco = inject(TranslocoService);
   protected readonly store = inject(WorkspaceStore);
   protected readonly boardStore = inject(BoardCatalogStore);
   private readonly parentParamMap = toSignal(this.route.parent!.paramMap, {
@@ -41,10 +43,13 @@ export class WorkspaceBoardsPage {
   protected async openCreateDialog(): Promise<void> {
     this.boardStore.clearError();
     const board = await firstValueFrom(
-      this.dialog.open<BoardResponseDto, BoardUpsertDialogData>(BoardUpsertDialog, {
-        ariaLabelledBy: 'board-upsert-title',
-        data: { mode: 'create', workspaceId: this.workspaceId() },
-      }).closed,
+      this.dialog.open<BoardResponseDto | undefined>(new PolymorpheusComponent(BoardUpsertDialog), {
+        closable: false,
+        data: { mode: 'create', workspaceId: this.workspaceId() } satisfies BoardUpsertDialogData,
+        label: this.transloco.translate('boards.create.title'),
+        size: 's',
+      }),
+      { defaultValue: undefined },
     );
     if (board) await this.openBoard(board);
   }
@@ -55,10 +60,13 @@ export class WorkspaceBoardsPage {
     this.boardStore.clearError();
 
     await firstValueFrom(
-      this.dialog.open<BoardResponseDto, BoardUpsertDialogData>(BoardUpsertDialog, {
-        ariaLabelledBy: 'board-upsert-title',
-        data: { mode: 'edit', board },
-      }).closed,
+      this.dialog.open<BoardResponseDto | undefined>(new PolymorpheusComponent(BoardUpsertDialog), {
+        closable: false,
+        data: { mode: 'edit', board } satisfies BoardUpsertDialogData,
+        label: this.transloco.translate('boards.edit.title'),
+        size: 's',
+      }),
+      { defaultValue: undefined },
     );
   }
 
@@ -68,10 +76,13 @@ export class WorkspaceBoardsPage {
     this.boardStore.clearError();
 
     await firstValueFrom(
-      this.dialog.open<boolean, BoardResponseDto>(BoardDeleteDialog, {
-        ariaLabelledBy: 'board-delete-title',
+      this.dialog.open<boolean>(new PolymorpheusComponent(BoardDeleteDialog), {
+        closable: false,
         data: board,
-      }).closed,
+        label: this.transloco.translate('boards.delete.title'),
+        size: 's',
+      }),
+      { defaultValue: false },
     );
   }
 

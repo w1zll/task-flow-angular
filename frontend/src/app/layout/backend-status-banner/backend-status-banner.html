@@ -1,11 +1,14 @@
 @if (state() !== 'hidden') {
   <aside
+    tuiNotification
+    size="l"
     class="status-banner"
-    [class.status-banner--error]="state() === 'unavailable'"
+    [appearance]="state() === 'unavailable' ? 'negative' : 'info'"
     role="status"
+    aria-live="polite"
   >
     @if (state() === 'starting') {
-      <span class="status-banner__spinner" aria-hidden="true"></span>
+      <tui-loader size="s" aria-hidden="true" />
     }
 
     <div class="status-banner__copy">
@@ -26,7 +29,7 @@
     </div>
 
     @if (state() === 'unavailable') {
-      <button class="status-banner__retry" type="button" (click)="retry.emit()">
+      <button tuiButton appearance="secondary" size="s" type="button" (click)="retry.emit()">
         {{ 'actions.retry' | transloco }}
       </button>
     }

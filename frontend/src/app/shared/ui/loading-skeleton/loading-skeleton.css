@@ -1,11 +1,15 @@
 @reference "#app.css";
 
+:host {
+  @apply block min-h-24;
+}
+
 .skeleton {
-  @apply flex animate-pulse flex-col gap-3;
+  @apply flex flex-col gap-3;
 }
 
 .skeleton__line {
-  @apply block h-4 rounded bg-surface-muted;
+  @apply block h-4 rounded;
 }
 
 .skeleton__line:last-child {

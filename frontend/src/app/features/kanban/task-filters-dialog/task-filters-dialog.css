@@ -1,11 +1,11 @@
 @reference "#app.css";
 
 :host {
-  @apply block w-[min(58rem,calc(100vw-2rem))];
+  @apply block w-[min(52rem,100%)] max-w-full;
 }
 
 .dialog {
-  @apply grid max-h-[calc(100dvh-2rem)] gap-5 overflow-y-auto rounded-xl border border-border bg-surface p-6 text-foreground shadow-card;
+  @apply grid max-h-[min(48rem,calc(100dvh-8rem))] gap-5 overflow-y-auto text-foreground;
 }
 
 header {
@@ -21,15 +21,23 @@ header p {
 }
 
 footer {
-  @apply flex justify-end gap-3;
+  @apply sticky bottom-0 flex justify-end gap-3 bg-surface py-2;
 }
 
 @media (max-width: 639px) {
   :host {
-    @apply h-dvh w-screen;
+    @apply w-full;
   }
 
   .dialog {
-    @apply h-full max-h-none rounded-none border-0 p-4;
+    @apply max-h-[calc(100dvh-7rem)] gap-4;
+  }
+
+  header {
+    @apply grid;
+  }
+
+  header app-button {
+    @apply justify-self-start;
   }
 }

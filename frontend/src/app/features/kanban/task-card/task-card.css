@@ -9,7 +9,7 @@
 }
 
 .task-card__pending {
-  color: var(--tf-text-muted);
+  color: var(--tf-muted);
   font-size: 0.75rem;
 }
 
@@ -18,7 +18,7 @@
 }
 
 .task-card__body {
-  @apply grid w-full cursor-pointer gap-2 p-3 text-left text-foreground transition-colors hover:bg-surface-muted;
+  @apply grid w-full cursor-pointer gap-2 rounded-t-xl p-3 text-left text-foreground transition-colors hover:bg-surface-muted;
 }
 
 .task-card__body strong {
@@ -62,14 +62,23 @@
   @apply flex flex-wrap justify-between gap-2 text-xs text-muted;
 }
 
+.task-card__meta span {
+  @apply min-w-0 break-words;
+  overflow-wrap: anywhere;
+}
+
 .task-card__actions {
-  @apply grid gap-1 border-t border-border p-2;
+  @apply grid gap-2 border-t border-border p-2;
 }
 
-.task-card__actions label {
-  @apply grid gap-1 px-2 py-1 text-xs font-semibold text-muted;
+.task-card__move {
+  @apply grid gap-1 px-1;
 }
 
-.task-card__actions select {
-  @apply min-h-9 w-full rounded-control border border-border bg-canvas px-2 text-sm text-foreground;
+.task-card__move-label {
+  @apply cursor-pointer text-xs font-semibold text-muted;
+}
+
+.task-card__actions select:not([tuiSelect]) {
+  @apply min-h-11 w-full rounded-control border border-border bg-canvas px-2 text-sm text-foreground;
 }

@@ -5,24 +5,26 @@
   </p>
 
   <form [formGroup]="form" (ngSubmit)="submit()">
-    <label class="field">
-      <span>{{ 'boards.fields.title' | transloco }}</span>
-      <input type="text" formControlName="title" maxlength="200" autofocus />
-      @if (form.controls.title.touched && form.controls.title.invalid) {
-        <small>{{ 'boards.validation.title' | transloco }}</small>
-      }
-    </label>
+    <tui-textfield class="field">
+      <label tuiLabel>{{ 'boards.fields.title' | transloco }}</label>
+      <input tuiInput type="text" formControlName="title" maxlength="200" autofocus />
+    </tui-textfield>
+    @if (form.controls.title.touched && form.controls.title.invalid) {
+      <small>{{ 'boards.validation.title' | transloco }}</small>
+    }
 
-    <label class="field">
-      <span>{{ 'boards.fields.description' | transloco }}</span>
-      <textarea formControlName="description" rows="3" maxlength="2000"></textarea>
-    </label>
+    <tui-textfield class="field">
+      <label tuiLabel>{{ 'boards.fields.description' | transloco }}</label>
+      <textarea tuiTextarea formControlName="description" rows="3" maxlength="2000"></textarea>
+    </tui-textfield>
 
     <label class="field">
       <span>{{ 'boards.fields.color' | transloco }}</span>
       <span class="color-field">
-        <input type="color" formControlName="color" />
-        <input type="text" formControlName="color" maxlength="7" />
+        <input class="color-field__picker" type="color" formControlName="color" />
+        <tui-textfield>
+          <input tuiInput type="text" formControlName="color" maxlength="7" />
+        </tui-textfield>
       </span>
     </label>
 
@@ -30,14 +32,14 @@
       <fieldset>
         <legend>{{ 'boards.fields.template' | transloco }}</legend>
         <label class="template-option">
-          <input type="radio" formControlName="template" value="empty" />
+          <input tuiRadio type="radio" formControlName="template" value="empty" />
           <span>
             <strong>{{ 'boards.templates.empty.title' | transloco }}</strong>
             <small>{{ 'boards.templates.empty.description' | transloco }}</small>
           </span>
         </label>
         <label class="template-option">
-          <input type="radio" formControlName="template" value="scrum" />
+          <input tuiRadio type="radio" formControlName="template" value="scrum" />
           <span>
             <strong>{{ 'boards.templates.scrum.title' | transloco }}</strong>
             <small>{{ 'boards.templates.scrum.description' | transloco }}</small>

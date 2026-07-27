@@ -9,11 +9,11 @@
 }
 
 .field {
-  @apply grid min-w-0 gap-1.5 text-xs font-bold text-muted;
+  @apply min-w-0;
 }
 
-.field input,
-.field select {
+.field input:not([tuiInput]),
+.field select:not([tuiSelect]) {
   @apply min-h-11 w-full min-w-0 max-w-full rounded-control border border-border bg-canvas px-3 text-sm font-normal text-foreground;
 }
 
@@ -30,7 +30,7 @@ legend {
 }
 
 .check {
-  @apply flex min-h-9 items-center gap-2 rounded-control border border-border bg-canvas px-2.5 text-sm;
+  @apply flex min-h-11 items-center gap-2 rounded-control border border-border bg-canvas px-2.5 text-sm;
 }
 
 .check input {
@@ -46,7 +46,7 @@ legend {
 }
 
 .filters__chips button {
-  @apply max-w-full break-all rounded-full border border-primary/30 bg-primary-soft px-3 py-1.5 text-left text-xs font-semibold text-primary;
+  @apply max-w-full break-all text-left text-xs;
 }
 
 .filters__chips .filters__clear {

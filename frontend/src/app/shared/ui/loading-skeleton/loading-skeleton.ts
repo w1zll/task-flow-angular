@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { TuiSkeleton } from '@taiga-ui/kit';
 
 @Component({
   selector: 'app-loading-skeleton',
-  imports: [],
+  imports: [TuiSkeleton],
   templateUrl: './loading-skeleton.html',
   styleUrl: './loading-skeleton.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

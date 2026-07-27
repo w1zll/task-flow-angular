@@ -46,12 +46,26 @@ button.auth-link {
   @apply h-11 w-32 animate-pulse rounded-control bg-surface-muted;
 }
 
-.preference__select {
+.preference__select:not([tuiSelect]) {
   @apply min-h-11 cursor-pointer rounded-control border border-border bg-surface px-2 text-sm font-semibold text-foreground transition-colors hover:bg-surface-muted;
 }
 
 .preference__select--theme {
   @apply max-w-28;
+}
+
+.preference {
+  @apply w-20;
+  text-align: center;
+}
+
+.preference:has(.preference__select--theme) {
+  @apply w-26;
+}
+
+.preference__select {
+  text-align: center;
+  text-align-last: center;
 }
 
 .sr-only {
@@ -97,5 +111,29 @@ button.auth-link {
 
   .preference__select--theme {
     @apply max-w-24;
+  }
+
+  .preference:has(.preference__select--theme) {
+    @apply w-24;
+  }
+}
+
+@media (max-width: 359px) {
+  .header {
+    height: auto;
+    min-height: var(--tf-header-height);
+  }
+
+  .header__actions {
+    @apply flex-wrap;
+  }
+
+  .auth-nav,
+  .preferences {
+    @apply w-full justify-between;
+  }
+
+  .auth-nav > * {
+    @apply flex-1;
   }
 }

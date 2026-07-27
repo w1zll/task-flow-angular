@@ -8,30 +8,6 @@
   @apply flex;
 }
 
-:host(.full-width) .button {
+:host(.full-width) button {
   @apply w-full;
-}
-
-.button {
-  @apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-control border border-transparent px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-55;
-}
-
-.button[data-variant='primary'] {
-  @apply bg-primary text-white hover:bg-primary-hover;
-}
-
-.button[data-variant='secondary'] {
-  @apply border-border bg-surface text-foreground hover:bg-surface-muted;
-}
-
-.button[data-variant='danger'] {
-  @apply bg-danger text-white;
-}
-
-.button[data-variant='ghost'] {
-  @apply text-foreground hover:bg-surface-muted;
-}
-
-.button__spinner {
-  @apply size-4 animate-spin rounded-full border-2 border-current border-r-transparent;
 }

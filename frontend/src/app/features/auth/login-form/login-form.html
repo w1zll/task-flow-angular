@@ -1,7 +1,8 @@
 <form class="auth-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
-  <label class="field" for="login-email">
-    <span>{{ 'auth.fields.email' | transloco }}</span>
+  <tui-textfield class="field">
+    <label tuiLabel for="login-email">{{ 'auth.fields.email' | transloco }}</label>
     <input
+      tuiInput
       id="login-email"
       type="email"
       formControlName="email"
@@ -10,7 +11,7 @@
       [attr.aria-invalid]="form.controls.email.touched && form.controls.email.invalid"
       aria-describedby="login-email-error"
     />
-  </label>
+  </tui-textfield>
   <div id="login-email-error" class="field-error" aria-live="polite">
     @if (showError('email', 'required')) {
       {{ 'auth.validation.required' | transloco }}
@@ -19,9 +20,10 @@
     }
   </div>
 
-  <label class="field" for="login-password">
-    <span>{{ 'auth.fields.password' | transloco }}</span>
+  <tui-textfield class="field">
+    <label tuiLabel for="login-password">{{ 'auth.fields.password' | transloco }}</label>
     <input
+      tuiInput
       id="login-password"
       type="password"
       formControlName="password"
@@ -29,7 +31,7 @@
       [attr.aria-invalid]="form.controls.password.touched && form.controls.password.invalid"
       aria-describedby="login-password-error"
     />
-  </label>
+  </tui-textfield>
   <div id="login-password-error" class="field-error" aria-live="polite">
     @if (showError('password', 'required')) {
       {{ 'auth.validation.required' | transloco }}
@@ -43,6 +45,7 @@
   <app-button
     class="full-width"
     type="submit"
+    size="m"
     [loading]="auth.status() === 'loading'"
     [disabled]="auth.status() === 'loading'"
   >

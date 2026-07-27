@@ -1,12 +1,14 @@
-<a class="skip-link" href="#main-content">
-  {{ 'a11y.skipToContent' | transloco }}
-</a>
+<tui-root [attr.tuiTheme]="theme.resolvedTheme()">
+  <a class="skip-link" href="#main-content">
+    {{ 'a11y.skipToContent' | transloco }}
+  </a>
 
-<app-header />
-<app-backend-status-banner [state]="backendBannerState()" (retry)="retryBackend()" />
+  <app-header />
+  <app-backend-status-banner [state]="backendBannerState()" (retry)="retryBackend()" />
 
-<div id="main-content" class="app-content" tabindex="-1">
-  <router-outlet />
-</div>
+  <div id="main-content" class="app-content" tabindex="-1">
+    <router-outlet />
+  </div>
 
-<app-toast-region />
+  <app-toast-region />
+</tui-root>

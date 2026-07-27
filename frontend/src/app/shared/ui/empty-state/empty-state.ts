@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { TuiBlockStatus } from '@taiga-ui/layout';
 
 @Component({
   selector: 'app-empty-state',
-  imports: [],
+  imports: [TuiBlockStatus],
   templateUrl: './empty-state.html',
   styleUrl: './empty-state.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

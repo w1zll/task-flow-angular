@@ -10,13 +10,13 @@
   </p>
 
   <form [formGroup]="form" (ngSubmit)="submit()">
-    <label class="field">
-      <span>{{ 'kanban.column.field' | transloco }}</span>
-      <input type="text" formControlName="title" maxlength="200" autofocus />
-      @if (form.controls.title.touched && form.controls.title.invalid) {
-        <small>{{ 'kanban.column.validation' | transloco }}</small>
-      }
-    </label>
+    <tui-textfield class="field">
+      <label tuiLabel>{{ 'kanban.column.field' | transloco }}</label>
+      <input tuiInput type="text" formControlName="title" maxlength="200" autofocus />
+    </tui-textfield>
+    @if (form.controls.title.touched && form.controls.title.invalid) {
+      <small>{{ 'kanban.column.validation' | transloco }}</small>
+    }
 
     @if (store.errorKey(); as errorKey) {
       <p class="dialog__error" role="alert">{{ errorKey | transloco }}</p>

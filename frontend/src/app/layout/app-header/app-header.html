@@ -17,11 +17,14 @@
         @if (!auth.hydrated()) {
           <span class="auth-loading" aria-hidden="true"></span>
         } @else if (auth.user(); as user) {
-          <a class="auth-link" routerLink="/workspaces">
+          <a tuiButton appearance="flat" size="s" class="auth-link" routerLink="/workspaces">
             {{ 'header.workspaces' | transloco }}
           </a>
           <span class="auth-user" [title]="user.name">{{ user.name }}</span>
           <button
+            tuiButton
+            appearance="primary"
+            size="s"
             class="auth-link auth-link--primary"
             type="button"
             [disabled]="auth.status() === 'loading'"
@@ -30,48 +33,55 @@
             {{ 'header.logout' | transloco }}
           </button>
         } @else {
-          <a class="auth-link" routerLink="/auth/login">
+          <a tuiButton appearance="flat" size="s" class="auth-link" routerLink="/auth/login">
             {{ 'header.login' | transloco }}
           </a>
-          <a class="auth-link auth-link--primary" routerLink="/auth/register">
+          <a
+            tuiButton
+            appearance="primary"
+            size="s"
+            class="auth-link auth-link--primary"
+            routerLink="/auth/register"
+          >
             {{ 'header.register' | transloco }}
           </a>
         }
       </nav>
 
       <div class="preferences">
-        <label class="preference">
-          <span class="sr-only">{{ 'header.language' | transloco }}</span>
+        <tui-textfield
+          tuiTextfieldSize="m"
+          class="preference"
+          [stringify]="stringifyLanguage"
+          [tuiTextfieldCleaner]="false"
+        >
           <select
+            tuiSelect
             class="preference__select"
-            [value]="locale.language()"
+            [items]="languages"
+            [ngModel]="locale.language()"
+            [ngModelOptions]="{ standalone: true }"
             [attr.aria-label]="'header.language' | transloco"
-            (change)="changeLanguage($event)"
-          >
-            <option value="ru">RU</option>
-            <option value="en">EN</option>
-          </select>
-        </label>
+            (ngModelChange)="setLanguage($event)"
+          ></select>
+        </tui-textfield>
 
-        <label class="preference">
-          <span class="sr-only">{{ 'header.theme' | transloco }}</span>
+        <tui-textfield
+          tuiTextfieldSize="m"
+          class="preference"
+          [stringify]="stringifyTheme"
+          [tuiTextfieldCleaner]="false"
+        >
           <select
+            tuiSelect
             class="preference__select preference__select--theme"
-            [value]="theme.mode()"
+            [items]="themes"
+            [ngModel]="theme.mode()"
+            [ngModelOptions]="{ standalone: true }"
             [attr.aria-label]="'header.theme' | transloco"
-            (change)="changeTheme($event)"
-          >
-            <option value="system">
-              {{ 'theme.system' | transloco }}
-            </option>
-            <option value="light">
-              {{ 'theme.light' | transloco }}
-            </option>
-            <option value="dark">
-              {{ 'theme.dark' | transloco }}
-            </option>
-          </select>
-        </label>
+            (ngModelChange)="setTheme($event)"
+          ></select>
+        </tui-textfield>
       </div>
     </div>
   </div>

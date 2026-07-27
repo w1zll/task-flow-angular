@@ -1,11 +1,11 @@
 @reference "#app.css";
 
 .state {
-  @apply mx-auto flex max-w-lg flex-col items-center rounded-control border border-dashed border-border bg-surface px-6 py-10 text-center;
+  @apply mx-auto max-w-lg;
 }
 
 .state__icon {
-  @apply mb-4 grid size-12 place-items-center rounded-full bg-primary-soft text-primary;
+  @apply grid size-12 place-items-center text-primary;
 }
 
 .state__title {
@@ -14,8 +14,4 @@
 
 .state__description {
   @apply mt-2 text-sm leading-6 text-muted;
-}
-
-.state__actions {
-  @apply mt-5 flex flex-wrap justify-center gap-2 empty:hidden;
 }

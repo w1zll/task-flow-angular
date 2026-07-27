@@ -24,6 +24,7 @@
         <span
           class="board-page__color"
           [style.background-color]="currentBoard.color || 'var(--tf-primary)'"
+          aria-hidden="true"
         ></span>
         <div>
           <p>{{ 'workspaces.roles.' + currentBoard.currentUserRole | transloco }}</p>
@@ -99,7 +100,7 @@
       }
 
       @if (filterFeedbackTitle(); as taskTitle) {
-        <div class="board-page__filter-feedback" role="status">
+        <div class="board-page__filter-feedback" role="status" aria-live="polite">
           <p>
             {{ 'kanban.filters.hiddenAfterChange' | transloco: { title: taskTitle } }}
           </p>
@@ -114,16 +115,21 @@
         </div>
       }
 
-      <label class="board-page__mobile-column">
-        <span>{{ 'kanban.mobile.activeColumn' | transloco }}</span>
-        <select [value]="activeColumn()?.id ?? ''" (change)="selectActiveColumn($event)">
-          @for (column of filteredColumns(); track column.id) {
-            <option [value]="column.id">
-              {{ column.title }} ({{ column.tasks?.length ?? 0 }})
-            </option>
-          }
-        </select>
-      </label>
+      <tui-textfield
+        tuiTextfieldSize="m"
+        class="board-page__mobile-column"
+        [stringify]="stringifyMobileColumn"
+        [tuiTextfieldCleaner]="false"
+      >
+        <label tuiLabel>{{ 'kanban.mobile.activeColumn' | transloco }}</label>
+        <select
+          tuiSelect
+          [items]="filteredColumnIds()"
+          [ngModel]="activeColumn()?.id ?? ''"
+          [ngModelOptions]="{ standalone: true }"
+          (ngModelChange)="selectActiveColumnId($event)"
+        ></select>
+      </tui-textfield>
 
       <div class="kanban-desktop" [attr.aria-label]="'kanban.boardLabel' | transloco">
         @for (column of filteredColumns(); track column.id; let columnIndex = $index) {

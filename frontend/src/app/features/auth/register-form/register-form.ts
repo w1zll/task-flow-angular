@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { TuiInput } from '@taiga-ui/core';
 
 import { AuthenticationCompletionService } from '@core/auth/authentication-completion.service';
 import { AuthStore } from '@core/auth/auth.store';
@@ -9,7 +10,7 @@ import { AppButton } from '@shared/ui/app-button/app-button';
 
 @Component({
   selector: 'app-register-form',
-  imports: [AppButton, ReactiveFormsModule, TranslocoPipe],
+  imports: [AppButton, ReactiveFormsModule, TranslocoPipe, TuiInput],
   templateUrl: './register-form.html',
   styleUrl: './register-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

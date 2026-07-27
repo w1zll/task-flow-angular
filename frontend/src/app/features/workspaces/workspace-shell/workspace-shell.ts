@@ -2,6 +2,7 @@ import { DOCUMENT, isPlatformBrowser } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  HostListener,
   OnDestroy,
   OnInit,
   PLATFORM_ID,
@@ -55,6 +56,7 @@ export class WorkspaceShell implements OnDestroy, OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private scrollLockSnapshot: ScrollLockSnapshot | null = null;
+  private drawerTrigger: HTMLElement | null = null;
   protected readonly store = inject(WorkspaceStore);
   private readonly paramMap = toSignal(this.route.paramMap, {
     initialValue: this.route.snapshot.paramMap,
@@ -78,20 +80,33 @@ export class WorkspaceShell implements OnDestroy, OnInit {
 
   protected toggleDrawer(event: MouseEvent): void {
     if (this.drawerOpen()) {
-      this.closeDrawer();
+      this.closeDrawer(true);
       return;
     }
 
     const button = event.currentTarget as HTMLElement;
+    this.drawerTrigger = button;
     const mobileBar = button.closest<HTMLElement>('.shell__mobile-bar');
     this.drawerTop.set(mobileBar?.getBoundingClientRect().bottom ?? 0);
     this.drawerOpen.set(true);
     this.lockPageScroll();
   }
 
-  protected closeDrawer(): void {
+  protected closeDrawer(restoreFocus = false): void {
     this.drawerOpen.set(false);
     this.unlockPageScroll();
+    if (restoreFocus && this.isBrowser) {
+      this.drawerTrigger?.focus();
+    }
+  }
+
+  @HostListener('document:keydown.escape', ['$event'])
+  protected closeDrawerFromKeyboard(event: Event): void {
+    if (!this.drawerOpen()) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    this.closeDrawer(true);
   }
 
   protected async selectWorkspace(workspaceId: string): Promise<void> {

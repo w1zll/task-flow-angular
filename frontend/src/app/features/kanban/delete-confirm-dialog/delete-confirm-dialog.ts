@@ -1,6 +1,7 @@
-import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { TuiDialogContext } from '@taiga-ui/core';
+import { POLYMORPHEUS_CONTEXT } from '@taiga-ui/polymorpheus';
 
 import { BoardResponseDto, ColumnResponseDto, TaskResponseDto } from '@core/api/generated';
 import { KanbanStore } from '@features/kanban/kanban.store';
@@ -26,8 +27,11 @@ export type DeleteConfirmDialogData =
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DeleteConfirmDialog {
-  protected readonly data = inject<DeleteConfirmDialogData>(DIALOG_DATA);
-  private readonly dialogRef = inject(DialogRef<BoardResponseDto>);
+  private readonly dialog =
+    inject<TuiDialogContext<BoardResponseDto | undefined, DeleteConfirmDialogData>>(
+      POLYMORPHEUS_CONTEXT,
+    );
+  protected readonly data = this.dialog.data;
   protected readonly store = inject(KanbanStore);
 
   protected readonly busy = computed(() => this.store.busyId() !== null);
@@ -43,12 +47,12 @@ export class DeleteConfirmDialog {
         this.data.kind === 'column'
           ? this.store.removeColumn(this.data.board.id, this.data.column.id)
           : this.store.removeTask(this.data.board.id, this.data.task.id);
-      this.dialogRef.close();
+      this.dialog.completeWith(undefined);
       await mutation;
     } catch {}
   }
 
   protected close(): void {
-    this.dialogRef.close();
+    this.dialog.completeWith(undefined);
   }
 }

@@ -5,9 +5,10 @@
   </div>
 
   <form class="dialog__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
-    <label class="field" for="workspace-name">
-      <span>{{ 'workspaces.create.name' | transloco }}</span>
+    <tui-textfield class="field">
+      <label tuiLabel for="workspace-name">{{ 'workspaces.create.name' | transloco }}</label>
       <input
+        tuiInput
         id="workspace-name"
         type="text"
         formControlName="name"
@@ -16,7 +17,7 @@
         [attr.aria-invalid]="form.controls.name.touched && form.controls.name.invalid"
         aria-describedby="workspace-name-error"
       />
-    </label>
+    </tui-textfield>
     <div id="workspace-name-error" class="field-error" aria-live="polite">
       @if (form.controls.name.touched && form.controls.name.hasError('required')) {
         {{ 'workspaces.create.required' | transloco }}

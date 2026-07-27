@@ -1,7 +1,8 @@
-import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { TuiDialogContext, TuiInput } from '@taiga-ui/core';
+import { POLYMORPHEUS_CONTEXT } from '@taiga-ui/polymorpheus';
 
 import { BoardResponseDto, ColumnResponseDto } from '@core/api/generated';
 import { KanbanStore } from '@features/kanban/kanban.store';
@@ -17,14 +18,17 @@ export type ColumnEditorDialogData =
 
 @Component({
   selector: 'app-column-editor-dialog',
-  imports: [AppButton, ReactiveFormsModule, TranslocoPipe],
+  imports: [AppButton, ReactiveFormsModule, TranslocoPipe, TuiInput],
   templateUrl: './column-editor-dialog.html',
   styleUrl: './column-editor-dialog.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ColumnEditorDialog {
-  protected readonly data = inject<ColumnEditorDialogData>(DIALOG_DATA);
-  private readonly dialogRef = inject(DialogRef<BoardResponseDto>);
+  private readonly dialog =
+    inject<TuiDialogContext<BoardResponseDto | undefined, ColumnEditorDialogData>>(
+      POLYMORPHEUS_CONTEXT,
+    );
+  protected readonly data = this.dialog.data;
   private readonly formBuilder = inject(FormBuilder);
   protected readonly store = inject(KanbanStore);
 
@@ -50,12 +54,12 @@ export class ColumnEditorDialog {
         this.data.mode === 'create'
           ? this.store.createColumn(this.data.board, title)
           : this.store.renameColumn(this.data.board.id, this.data.column.id, title);
-      this.dialogRef.close();
+      this.dialog.completeWith(undefined);
       await mutation;
     } catch {}
   }
 
   protected close(): void {
-    this.dialogRef.close();
+    this.dialog.completeWith(undefined);
   }
 }

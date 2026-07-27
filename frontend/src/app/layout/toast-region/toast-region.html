@@ -5,15 +5,17 @@
   [attr.aria-label]="'toast.regionLabel' | transloco"
 >
   @for (message of toast.messages(); track message.id) {
-    <article class="toast" [attr.data-tone]="message.tone">
+    <article tuiNotification class="toast" size="m" [appearance]="appearance(message.tone)">
       <p>{{ message.message }}</p>
       <button
-        class="toast__close"
+        tuiButton
+        appearance="flat"
+        size="s"
         type="button"
         [attr.aria-label]="'actions.close' | transloco"
         (click)="toast.dismiss(message.id)"
       >
-        <span aria-hidden="true">×</span>
+        ×
       </button>
     </article>
   }

@@ -28,7 +28,7 @@ fieldset {
   @apply grid grid-cols-2 gap-4 border-0 p-0;
 }
 
-.field {
+.field:not(tui-textfield) {
   @apply grid content-start gap-2 text-sm font-semibold;
 }
 
@@ -36,9 +36,9 @@ fieldset {
   @apply col-span-2;
 }
 
-.field input,
-.field textarea,
-.field select {
+.field input:not([tuiInput]),
+.field textarea:not([tuiTextarea]),
+.field select:not([tuiSelect]) {
   @apply min-h-11 w-full rounded-control border border-border bg-canvas px-3 py-2 text-base font-normal text-foreground;
 }
 

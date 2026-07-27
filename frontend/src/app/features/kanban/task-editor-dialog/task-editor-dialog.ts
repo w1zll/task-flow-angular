@@ -1,7 +1,9 @@
-import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { TuiCheckbox, TuiDialogContext, TuiInput, TuiTextfield } from '@taiga-ui/core';
+import { TuiSelect, TuiTextarea } from '@taiga-ui/kit';
+import { POLYMORPHEUS_CONTEXT } from '@taiga-ui/polymorpheus';
 
 import {
   BoardResponseDto,
@@ -34,21 +36,45 @@ const labelsFromInput = (value: string): string[] =>
 
 @Component({
   selector: 'app-task-editor-dialog',
-  imports: [AppButton, ReactiveFormsModule, TranslocoPipe],
+  imports: [
+    AppButton,
+    ReactiveFormsModule,
+    TranslocoPipe,
+    TuiCheckbox,
+    TuiInput,
+    TuiSelect,
+    TuiTextarea,
+    TuiTextfield,
+  ],
   templateUrl: './task-editor-dialog.html',
   styleUrl: './task-editor-dialog.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaskEditorDialog {
-  protected readonly data = inject<TaskEditorDialogData>(DIALOG_DATA);
-  private readonly dialogRef = inject(DialogRef<BoardResponseDto>);
+  private readonly dialog =
+    inject<TuiDialogContext<BoardResponseDto | undefined, TaskEditorDialogData>>(
+      POLYMORPHEUS_CONTEXT,
+    );
+  protected readonly data = this.dialog.data;
   private readonly formBuilder = inject(FormBuilder);
+  private readonly transloco = inject(TranslocoService);
   protected readonly store = inject(KanbanStore);
 
   protected readonly isCreate = !this.data.task;
   protected readonly members = [...(this.data.board.members ?? [])].sort((a, b) =>
     a.user.name.localeCompare(b.user.name),
   );
+  protected readonly priorities: readonly CreateTaskDto['priority'][] = [
+    'low',
+    'medium',
+    'high',
+    'urgent',
+  ];
+  protected readonly assigneeIds = this.members.map(({ userId }) => userId);
+  protected readonly stringifyPriority = (priority: CreateTaskDto['priority']): string =>
+    this.transloco.translate(`kanban.priority.${priority}`);
+  protected readonly stringifyAssignee = (id: string): string =>
+    this.members.find(({ userId }) => userId === id)?.user.name ?? id;
   protected readonly form = this.formBuilder.nonNullable.group({
     title: [
       this.data.task?.title ?? '',
@@ -101,12 +127,12 @@ export class TaskEditorDialog {
         if (value.assigneeId) create.assigneeId = value.assigneeId;
         mutation = this.store.createTask(this.data.board.id, create);
       }
-      this.dialogRef.close();
+      this.dialog.completeWith(undefined);
       await mutation;
     } catch {}
   }
 
   protected close(): void {
-    this.dialogRef.close();
+    this.dialog.completeWith(undefined);
   }
 }

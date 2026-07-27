@@ -1,6 +1,7 @@
-import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { TuiDialogContext } from '@taiga-ui/core';
+import { POLYMORPHEUS_CONTEXT } from '@taiga-ui/polymorpheus';
 
 import {
   TaskFilterAssignee,
@@ -23,15 +24,18 @@ export interface TaskFiltersDialogData {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaskFiltersDialog {
-  protected readonly data = inject<TaskFiltersDialogData>(DIALOG_DATA);
-  private readonly dialogRef = inject(DialogRef<TaskFilterState>);
+  private readonly dialog =
+    inject<TuiDialogContext<TaskFilterState | undefined, TaskFiltersDialogData>>(
+      POLYMORPHEUS_CONTEXT,
+    );
+  protected readonly data = this.dialog.data;
   protected readonly draft = signal(this.data.filters);
 
   protected apply(): void {
-    this.dialogRef.close(this.draft());
+    this.dialog.completeWith(this.draft());
   }
 
   protected close(): void {
-    this.dialogRef.close();
+    this.dialog.completeWith(undefined);
   }
 }

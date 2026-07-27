@@ -1,8 +1,8 @@
-import { Dialog } from '@angular/cdk/dialog';
 import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  Type,
   computed,
   effect,
   inject,
@@ -10,8 +10,12 @@ import {
   untracked,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { TuiDialogService } from '@taiga-ui/core';
+import { TuiSelect } from '@taiga-ui/kit';
+import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { firstValueFrom } from 'rxjs';
 
 import { BoardResponseDto, ColumnResponseDto, TaskResponseDto } from '@core/api/generated';
@@ -63,11 +67,13 @@ import { LoadingSkeleton } from '@shared/ui/loading-skeleton/loading-skeleton';
   imports: [
     AppButton,
     ErrorState,
+    FormsModule,
     KanbanColumn,
     LoadingSkeleton,
     RouterLink,
     TaskFilters,
     TranslocoPipe,
+    TuiSelect,
   ],
   templateUrl: './board-detail-page.html',
   styleUrl: './board-detail-page.css',
@@ -76,7 +82,8 @@ import { LoadingSkeleton } from '@shared/ui/loading-skeleton/loading-skeleton';
 export class BoardDetailPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly dialog = inject(Dialog);
+  private readonly dialog = inject(TuiDialogService);
+  private readonly transloco = inject(TranslocoService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly store = inject(BoardCatalogStore);
   private readonly auth = inject(AuthStore);
@@ -137,6 +144,12 @@ export class BoardDetailPage {
       tasks: (column.tasks ?? []).filter((task) => taskMatchesFilters(task, filters, userId, now)),
     }));
   });
+  protected readonly filteredColumnIds = computed(() => this.filteredColumns().map(({ id }) => id));
+  protected readonly stringifyMobileColumn = (id: string): string => {
+    const column = this.filteredColumns().find((item) => item.id === id);
+
+    return column ? `${column.title} (${column.tasks?.length ?? 0})` : id;
+  };
   protected readonly totalTaskCount = computed(() =>
     this.columns().reduce((count, column) => count + (column.tasks?.length ?? 0), 0),
   );
@@ -217,10 +230,13 @@ export class BoardDetailPage {
       const freshBoard = await this.store.detail(currentBoard.id, true);
       this.syncActiveColumn(freshBoard);
       await firstValueFrom(
-        this.dialog.open(BoardMembersDialog, {
-          ariaLabelledBy: 'board-members-title',
+        this.dialog.open(new PolymorpheusComponent(BoardMembersDialog), {
+          closable: false,
           data: freshBoard,
-        }).closed,
+          label: this.transloco.translate('boardMembers.title'),
+          size: 'l',
+        }),
+        { defaultValue: undefined },
       );
 
       this.syncActiveColumn(await this.store.detail(freshBoard.id));
@@ -243,14 +259,17 @@ export class BoardDetailPage {
 
   protected async openFilters(): Promise<void> {
     const result = await firstValueFrom(
-      this.dialog.open<TaskFilterState>(TaskFiltersDialog, {
-        ariaLabelledBy: 'task-filters-title',
+      this.dialog.open<TaskFilterState | undefined>(new PolymorpheusComponent(TaskFiltersDialog), {
+        closable: false,
         data: {
           filters: this.filters(),
           assignees: this.assignees(),
           labels: this.availableLabels(),
         } satisfies TaskFiltersDialogData,
-      }).closed,
+        label: this.transloco.translate('kanban.filters.title'),
+        size: 'l',
+      }),
+      { defaultValue: undefined },
     );
     if (result) this.setFilters(result);
   }
@@ -262,61 +281,85 @@ export class BoardDetailPage {
   protected openCreateColumn(): void {
     const board = this.board();
     if (!board) return;
-    void this.openBoardDialog<ColumnEditorDialogData>(ColumnEditorDialog, {
-      mode: 'create',
-      board,
-    });
+    void this.openBoardDialog<ColumnEditorDialogData>(
+      ColumnEditorDialog,
+      {
+        mode: 'create',
+        board,
+      },
+      'kanban.column.create.title',
+    );
   }
 
   protected openRenameColumn(column: ColumnResponseDto): void {
     const board = this.board();
     if (!board) return;
-    void this.openBoardDialog<ColumnEditorDialogData>(ColumnEditorDialog, {
-      mode: 'rename',
-      board,
-      column,
-    });
+    void this.openBoardDialog<ColumnEditorDialogData>(
+      ColumnEditorDialog,
+      {
+        mode: 'rename',
+        board,
+        column,
+      },
+      'kanban.column.rename.title',
+    );
   }
 
   protected openDeleteColumn(column: ColumnResponseDto): void {
     const board = this.board();
     if (!board) return;
-    void this.openBoardDialog<DeleteConfirmDialogData>(DeleteConfirmDialog, {
-      kind: 'column',
-      board,
-      column,
-    });
+    void this.openBoardDialog<DeleteConfirmDialogData>(
+      DeleteConfirmDialog,
+      {
+        kind: 'column',
+        board,
+        column,
+      },
+      'kanban.column.delete.title',
+    );
   }
 
   protected openCreateTask(column: ColumnResponseDto): void {
     const board = this.board();
     if (!board) return;
-    void this.openBoardDialog<TaskEditorDialogData>(TaskEditorDialog, {
-      board,
-      columnId: column.id,
-      canEdit: board.capabilities.canEditBoardContent,
-    });
+    void this.openBoardDialog<TaskEditorDialogData>(
+      TaskEditorDialog,
+      {
+        board,
+        columnId: column.id,
+        canEdit: board.capabilities.canEditBoardContent,
+      },
+      'kanban.task.create.title',
+    );
   }
 
   protected openTask(task: TaskResponseDto): void {
     const board = this.board();
     if (!board) return;
-    void this.openBoardDialog<TaskEditorDialogData>(TaskEditorDialog, {
-      board,
-      columnId: task.columnId,
-      task,
-      canEdit: board.capabilities.canEditBoardContent,
-    });
+    void this.openBoardDialog<TaskEditorDialogData>(
+      TaskEditorDialog,
+      {
+        board,
+        columnId: task.columnId,
+        task,
+        canEdit: board.capabilities.canEditBoardContent,
+      },
+      board.capabilities.canEditBoardContent ? 'kanban.task.edit.title' : 'kanban.task.view.title',
+    );
   }
 
   protected openDeleteTask(task: TaskResponseDto): void {
     const board = this.board();
     if (!board) return;
-    void this.openBoardDialog<DeleteConfirmDialogData>(DeleteConfirmDialog, {
-      kind: 'task',
-      board,
-      task,
-    });
+    void this.openBoardDialog<DeleteConfirmDialogData>(
+      DeleteConfirmDialog,
+      {
+        kind: 'task',
+        board,
+        task,
+      },
+      'kanban.task.delete.title',
+    );
   }
 
   protected moveColumn(column: ColumnResponseDto, direction: MoveDirection): void {
@@ -347,6 +390,10 @@ export class BoardDetailPage {
 
   protected selectActiveColumn(event: Event): void {
     this.activeColumnId.set((event.target as HTMLSelectElement).value);
+  }
+
+  protected selectActiveColumnId(columnId: string): void {
+    this.activeColumnId.set(columnId);
   }
 
   private async load(boardId: string, workspaceId: string, force = false): Promise<void> {
@@ -388,18 +435,20 @@ export class BoardDetailPage {
   private async openBoardDialog<T>(
     component: typeof ColumnEditorDialog | typeof DeleteConfirmDialog | typeof TaskEditorDialog,
     data: T,
+    labelKey: string,
   ): Promise<void> {
     this.kanban.clearError();
     const result = await firstValueFrom(
-      this.dialog.open<BoardResponseDto>(component, {
-        ariaLabelledBy:
-          component === ColumnEditorDialog
-            ? 'column-editor-title'
-            : component === DeleteConfirmDialog
-              ? 'kanban-delete-title'
-              : 'task-editor-title',
-        data,
-      }).closed,
+      this.dialog.open<BoardResponseDto | undefined>(
+        new PolymorpheusComponent(component as Type<unknown>),
+        {
+          closable: false,
+          data,
+          label: this.transloco.translate(labelKey),
+          size: component === TaskEditorDialog ? 'l' : 's',
+        },
+      ),
+      { defaultValue: undefined },
     );
     if (result) this.syncActiveColumn(result);
   }

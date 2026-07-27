@@ -20,15 +20,15 @@
   @apply mt-6;
 }
 
-.field {
+.field:not(tui-textfield) {
   @apply grid gap-2 text-sm font-semibold;
 }
 
-.field input {
+.field input:not([tuiInput]) {
   @apply min-h-12 rounded-control border border-border bg-canvas px-3 text-base font-normal hover:border-primary focus:border-primary;
 }
 
-.field input[aria-invalid='true'] {
+.field input:not([tuiInput])[aria-invalid='true'] {
   @apply border-danger;
 }
 

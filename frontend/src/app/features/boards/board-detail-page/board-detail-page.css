@@ -29,7 +29,8 @@
 }
 
 .board-page__identity div > span {
-  @apply mt-2 block text-sm leading-6 text-muted;
+  @apply mt-2 block break-words text-sm leading-6 text-muted;
+  overflow-wrap: anywhere;
 }
 
 .board-page__actions {
@@ -38,6 +39,11 @@
 
 .board-page__realtime {
   @apply rounded-full bg-surface-muted px-3 py-1.5 text-xs font-semibold text-muted;
+}
+
+.board-page__realtime::before {
+  content: '●';
+  @apply mr-1;
 }
 
 .board-page__realtime[data-status='connected'] {
@@ -113,7 +119,15 @@
   }
 
   .board-page__actions {
-    @apply justify-start;
+    @apply grid w-full;
+  }
+
+  .board-page__actions app-button {
+    @apply w-full;
+  }
+
+  .board-page__realtime {
+    @apply w-fit;
   }
 
   .kanban-desktop {
@@ -133,7 +147,7 @@
   }
 
   .board-page__filter-feedback div {
-    @apply flex-wrap;
+    @apply grid;
   }
 
   .kanban-mobile {
@@ -141,10 +155,10 @@
   }
 
   .board-page__mobile-column {
-    @apply grid gap-2 text-sm font-semibold;
+    @apply flex w-full text-sm font-semibold;
   }
 
-  .board-page__mobile-column select {
+  .board-page__mobile-column select:not([tuiSelect]) {
     @apply min-h-11 w-full rounded-control border border-border bg-surface px-3 text-base text-foreground;
   }
 }

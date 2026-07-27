@@ -67,7 +67,8 @@
 
 .member-row__identity strong,
 .member-row__identity span {
-  @apply truncate;
+  @apply break-words;
+  overflow-wrap: anywhere;
 }
 
 .member-row__identity span,
@@ -79,8 +80,8 @@
   @apply flex flex-wrap justify-end gap-1;
 }
 
-select,
-input {
+select:not([tuiSelect]),
+input:not([tuiInput]) {
   @apply min-h-11 rounded-control border border-border bg-surface px-3 text-sm text-foreground;
 }
 
@@ -128,6 +129,16 @@ input {
   @apply flex items-center justify-between gap-4 py-3 first:pt-0 last:pb-0;
 }
 
+.invite-row > div {
+  @apply min-w-0;
+}
+
+.invite-row strong,
+.invite-row span {
+  @apply break-words;
+  overflow-wrap: anywhere;
+}
+
 .invite-list__empty {
   @apply py-3 text-sm text-muted;
 }
@@ -150,6 +161,10 @@ input {
   }
 
   .settings-section--danger {
-    @apply items-start;
+    @apply flex-col items-start;
+  }
+
+  .invite-row {
+    @apply grid;
   }
 }

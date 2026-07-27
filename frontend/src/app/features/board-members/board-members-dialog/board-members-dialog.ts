@@ -1,4 +1,3 @@
-import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -7,8 +6,11 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { TuiDialogContext } from '@taiga-ui/core';
+import { TuiSelect } from '@taiga-ui/kit';
+import { POLYMORPHEUS_CONTEXT } from '@taiga-ui/polymorpheus';
 
 import {
   BoardMemberResponseDto,
@@ -25,15 +27,19 @@ type BoardMemberRole = 'editor' | 'viewer';
 
 @Component({
   selector: 'app-board-members-dialog',
-  imports: [AppButton, LoadingSkeleton, ReactiveFormsModule, TranslocoPipe],
+  imports: [AppButton, FormsModule, LoadingSkeleton, ReactiveFormsModule, TranslocoPipe, TuiSelect],
   templateUrl: './board-members-dialog.html',
   styleUrl: './board-members-dialog.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BoardMembersDialog implements OnInit {
-  protected readonly board = inject<BoardResponseDto>(DIALOG_DATA);
-  private readonly dialogRef = inject(DialogRef<readonly BoardMemberResponseDto[]>);
+  private readonly dialog =
+    inject<TuiDialogContext<readonly BoardMemberResponseDto[], BoardResponseDto>>(
+      POLYMORPHEUS_CONTEXT,
+    );
+  protected readonly board = this.dialog.data;
   private readonly formBuilder = inject(FormBuilder);
+  private readonly transloco = inject(TranslocoService);
   private readonly cache = inject(QueryCacheStore);
   protected readonly store = inject(BoardMembersStore);
 
@@ -59,6 +65,15 @@ export class BoardMembersDialog implements OnInit {
     const memberUserIds = new Set(this.members().map((member) => member.userId));
     return this.workspaceMembers().filter((member) => !memberUserIds.has(member.userId));
   });
+  protected readonly candidateIds = computed(() => this.candidates().map(({ userId }) => userId));
+  protected readonly roles: readonly BoardMemberRole[] = ['editor', 'viewer'];
+  protected readonly stringifyCandidate = (id: string): string => {
+    const candidate = this.candidates().find(({ userId }) => userId === id);
+
+    return candidate ? `${candidate.user.name} · ${candidate.user.email}` : id;
+  };
+  protected readonly stringifyRole = (role: BoardMemberRole): string =>
+    this.transloco.translate(`workspaces.roles.${role}`);
   protected readonly addForm = this.formBuilder.nonNullable.group({
     userId: ['', Validators.required],
     role: ['editor' as BoardMemberRole, Validators.required],
@@ -95,6 +110,20 @@ export class BoardMembersDialog implements OnInit {
     } catch {}
   }
 
+  protected changeRoleValue(member: BoardMemberResponseDto, role: BoardMemberRole): void {
+    void this.updateRole(member, role);
+  }
+
+  private async updateRole(member: BoardMemberResponseDto, role: BoardMemberRole): Promise<void> {
+    const memberId = member.id;
+    if (!this.canManage || !memberId || member.role === 'owner' || role === member.role) return;
+
+    this.store.clearError();
+    try {
+      await this.store.updateRole(this.board.id, memberId, role);
+    } catch {}
+  }
+
   protected requestRemove(member: BoardMemberResponseDto): void {
     if (member.id) this.confirmRemoveId.set(member.id);
   }
@@ -119,7 +148,7 @@ export class BoardMembersDialog implements OnInit {
   }
 
   protected close(): void {
-    this.dialogRef.close(this.members());
+    this.dialog.completeWith(this.members());
   }
 
   private async load(force = false): Promise<void> {

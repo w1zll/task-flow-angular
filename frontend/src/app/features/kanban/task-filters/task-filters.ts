@@ -1,5 +1,8 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { TuiCheckbox, TuiInput } from '@taiga-ui/core';
+import { TuiChip, TuiSelect } from '@taiga-ui/kit';
 
 import {
   TaskFilterAssignee,
@@ -12,7 +15,7 @@ import {
 
 @Component({
   selector: 'app-task-filters',
-  imports: [TranslocoPipe],
+  imports: [FormsModule, TranslocoPipe, TuiCheckbox, TuiChip, TuiInput, TuiSelect],
   templateUrl: './task-filters.html',
   styleUrl: './task-filters.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -22,6 +25,7 @@ export class TaskFilters {
   readonly assignees = input<readonly TaskFilterAssignee[]>([]);
   readonly labels = input<readonly string[]>([]);
   readonly filtersChange = output<TaskFilterState>();
+  private readonly transloco = inject(TranslocoService);
 
   protected readonly priorityValues: readonly TaskFilterPriority[] = [
     'low',
@@ -37,6 +41,12 @@ export class TaskFilters {
     'today',
     'week',
   ];
+  protected readonly assigneeIds = computed(() => this.assignees().map(({ id }) => id));
+  protected readonly stringifyAssignee = (id: string): string => this.assigneeName(id);
+  protected readonly stringifyStatus = (status: TaskFilterStatus): string =>
+    this.transloco.translate(`kanban.filters.status.${status}`);
+  protected readonly stringifyDue = (due: TaskFilterDue): string =>
+    this.transloco.translate(`kanban.filters.due.${due}`);
 
   protected setSearch(event: Event): void {
     this.patch({ search: (event.target as HTMLInputElement).value.trim().slice(0, 200) });
@@ -46,12 +56,24 @@ export class TaskFilters {
     this.patch({ assigneeId: (event.target as HTMLSelectElement).value || null });
   }
 
+  protected setAssigneeValue(value: string | null): void {
+    this.patch({ assigneeId: value || null });
+  }
+
   protected setStatus(event: Event): void {
     this.patch({ status: (event.target as HTMLSelectElement).value as TaskFilterStatus });
   }
 
+  protected setStatusValue(status: TaskFilterStatus): void {
+    this.patch({ status });
+  }
+
   protected setDue(event: Event): void {
     this.patch({ due: (event.target as HTMLSelectElement).value as TaskFilterDue });
+  }
+
+  protected setDueValue(due: TaskFilterDue): void {
+    this.patch({ due });
   }
 
   protected setFlag(key: 'mine' | 'unassigned', event: Event): void {

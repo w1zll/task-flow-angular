@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
-import { Dialog } from '@angular/cdk/dialog';
 import { Router } from '@angular/router';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { TuiButton, TuiDialogService } from '@taiga-ui/core';
+import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { firstValueFrom } from 'rxjs';
 
 import { WorkspaceResponseDto } from '@core/api/generated';
@@ -18,14 +19,15 @@ import { LoadingSkeleton } from '@shared/ui/loading-skeleton/loading-skeleton';
 
 @Component({
   selector: 'app-workspace-catalog-page',
-  imports: [AppButton, EmptyState, ErrorState, LoadingSkeleton, TranslocoPipe],
+  imports: [AppButton, EmptyState, ErrorState, LoadingSkeleton, TranslocoPipe, TuiButton],
   templateUrl: './workspace-catalog-page.html',
   styleUrl: './workspace-catalog-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkspaceCatalogPage implements OnInit {
-  private readonly dialog = inject(Dialog);
+  private readonly dialog = inject(TuiDialogService);
   private readonly router = inject(Router);
+  private readonly transloco = inject(TranslocoService);
   protected readonly store = inject(WorkspaceStore);
 
   ngOnInit(): void {
@@ -34,9 +36,15 @@ export class WorkspaceCatalogPage implements OnInit {
 
   protected async openCreateDialog(): Promise<void> {
     const workspace = await firstValueFrom(
-      this.dialog.open<WorkspaceResponseDto>(WorkspaceCreateDialog, {
-        ariaLabelledBy: 'workspace-create-title',
-      }).closed,
+      this.dialog.open<WorkspaceResponseDto | undefined>(
+        new PolymorpheusComponent(WorkspaceCreateDialog),
+        {
+          closable: false,
+          label: this.transloco.translate('workspaces.create.title'),
+          size: 's',
+        },
+      ),
+      { defaultValue: undefined },
     );
 
     if (workspace) {
@@ -50,10 +58,16 @@ export class WorkspaceCatalogPage implements OnInit {
   ): Promise<void> {
     event.stopPropagation();
     const result = await firstValueFrom(
-      this.dialog.open<WorkspaceDeleteResult, WorkspaceResponseDto>(WorkspaceDeleteDialog, {
-        ariaLabelledBy: 'workspace-delete-title',
-        data: workspace,
-      }).closed,
+      this.dialog.open<WorkspaceDeleteResult | undefined>(
+        new PolymorpheusComponent(WorkspaceDeleteDialog),
+        {
+          closable: false,
+          data: workspace,
+          label: this.transloco.translate('workspaces.delete.title'),
+          size: 's',
+        },
+      ),
+      { defaultValue: undefined },
     );
 
     if (result) await this.store.load(true);

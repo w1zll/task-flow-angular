@@ -23,7 +23,7 @@
       <p class="settings-error" role="alert">{{ errorKey | transloco }}</p>
     }
 
-    <section class="settings-section" aria-labelledby="members-heading">
+    <section tuiCardLarge="compact" class="settings-section" aria-labelledby="members-heading">
       <div class="settings-section__heading">
         <div>
           <h3 id="members-heading">{{ 'workspaces.settings.members.title' | transloco }}</h3>
@@ -44,18 +44,24 @@
             </div>
             <div class="member-row__role">
               @if (canChangeRole(member)) {
-                <label [for]="'role-' + member.id" class="sr-only">
-                  {{ 'workspaces.settings.members.roleLabel' | transloco }}
-                </label>
-                <select
-                  [id]="'role-' + member.id"
-                  [value]="member.role"
-                  [disabled]="busyId() === member.id"
-                  (change)="changeRole(member, $event)"
+                <tui-textfield
+                  tuiTextfieldSize="s"
+                  [stringify]="stringifyRole"
+                  [tuiTextfieldCleaner]="false"
                 >
-                  <option value="admin">{{ 'workspaces.roles.admin' | transloco }}</option>
-                  <option value="member">{{ 'workspaces.roles.member' | transloco }}</option>
-                </select>
+                  <label tuiLabel [for]="'role-' + member.id" class="sr-only">
+                    {{ 'workspaces.settings.members.roleLabel' | transloco }}
+                  </label>
+                  <select
+                    tuiSelect
+                    [id]="'role-' + member.id"
+                    [items]="memberRoles"
+                    [ngModel]="member.role"
+                    [ngModelOptions]="{ standalone: true }"
+                    [disabled]="busyId() === member.id"
+                    (ngModelChange)="changeRoleValue(member, $event)"
+                  ></select>
+                </tui-textfield>
               } @else {
                 <span class="role-badge">
                   {{ 'workspaces.roles.' + member.role | transloco }}
@@ -88,7 +94,7 @@
     </section>
 
     @if (canManageInvites()) {
-      <section class="settings-section" aria-labelledby="invites-heading">
+      <section tuiCardLarge="compact" class="settings-section" aria-labelledby="invites-heading">
         <div class="settings-section__heading">
           <div>
             <h3 id="invites-heading">{{ 'invites.settings.title' | transloco }}</h3>
@@ -97,31 +103,40 @@
         </div>
 
         <form class="invite-form" [formGroup]="inviteForm" (ngSubmit)="createInvite()">
-          <label>
-            <span>{{ 'invites.settings.role' | transloco }}</span>
-            <select formControlName="defaultRole">
-              <option value="member">{{ 'workspaces.roles.member' | transloco }}</option>
-              @if (workspace()?.currentUserRole === 'owner') {
-                <option value="admin">{{ 'workspaces.roles.admin' | transloco }}</option>
-              }
-            </select>
-          </label>
-          <label>
-            <span>{{ 'invites.settings.expires' | transloco }}</span>
-            <input type="number" min="1" max="30" formControlName="expiresInDays" />
-          </label>
-          <label>
-            <span>{{ 'invites.settings.maxUses' | transloco }}</span>
-            <input type="number" min="1" max="1000" formControlName="maxUses" />
-          </label>
-          <label>
-            <span>{{ 'invites.settings.email' | transloco }}</span>
-            <input type="email" formControlName="allowedEmail" placeholder="name@example.com" />
-          </label>
-          <label>
-            <span>{{ 'invites.settings.domain' | transloco }}</span>
-            <input type="text" formControlName="allowedEmailDomain" placeholder="example.com" />
-          </label>
+          <tui-textfield
+            tuiTextfieldSize="m"
+            [stringify]="stringifyRole"
+            [tuiTextfieldCleaner]="false"
+          >
+            <label tuiLabel>{{ 'invites.settings.role' | transloco }}</label>
+            <select tuiSelect formControlName="defaultRole" [items]="inviteRoles()"></select>
+          </tui-textfield>
+          <tui-textfield>
+            <label tuiLabel>{{ 'invites.settings.expires' | transloco }}</label>
+            <input tuiInput type="number" min="1" max="30" formControlName="expiresInDays" />
+          </tui-textfield>
+          <tui-textfield>
+            <label tuiLabel>{{ 'invites.settings.maxUses' | transloco }}</label>
+            <input tuiInput type="number" min="1" max="1000" formControlName="maxUses" />
+          </tui-textfield>
+          <tui-textfield>
+            <label tuiLabel>{{ 'invites.settings.email' | transloco }}</label>
+            <input
+              tuiInput
+              type="email"
+              formControlName="allowedEmail"
+              placeholder="name@example.com"
+            />
+          </tui-textfield>
+          <tui-textfield>
+            <label tuiLabel>{{ 'invites.settings.domain' | transloco }}</label>
+            <input
+              tuiInput
+              type="text"
+              formControlName="allowedEmailDomain"
+              placeholder="example.com"
+            />
+          </tui-textfield>
           <div class="invite-form__submit">
             <app-button
               type="submit"
@@ -133,7 +148,7 @@
           </div>
         </form>
         @if (inviteForm.invalid && inviteForm.touched) {
-          <p class="form-error">{{ 'invites.settings.validation' | transloco }}</p>
+          <p class="form-error" role="alert">{{ 'invites.settings.validation' | transloco }}</p>
         }
 
         @if (createdInviteUrl(); as url) {
@@ -142,7 +157,9 @@
               <strong>{{ 'invites.settings.createdTitle' | transloco }}</strong>
               <p>{{ 'invites.settings.createdHint' | transloco }}</p>
             </div>
-            <input [value]="url" readonly />
+            <tui-textfield>
+              <input tuiInput [value]="url" readonly />
+            </tui-textfield>
             <app-button variant="secondary" (pressed)="copyInvite()">
               {{ 'invites.settings.copy' | transloco }}
             </app-button>
@@ -192,7 +209,11 @@
     }
 
     @if (workspace()?.currentUserRole === 'owner' && workspace(); as currentWorkspace) {
-      <section class="settings-section settings-section--danger" aria-labelledby="danger-heading">
+      <section
+        tuiCardLarge="compact"
+        class="settings-section settings-section--danger"
+        aria-labelledby="danger-heading"
+      >
         <div>
           <h3 id="danger-heading">{{ 'workspaces.settings.danger.title' | transloco }}</h3>
           <p>{{ 'workspaces.settings.danger.description' | transloco }}</p>

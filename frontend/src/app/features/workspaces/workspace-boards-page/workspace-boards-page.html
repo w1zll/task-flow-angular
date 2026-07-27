@@ -65,12 +65,21 @@
           </button>
           <div class="board-card__actions">
             @if (board.capabilities.canManageBoardSettings) {
-              <button type="button" (click)="openEditDialog($event, board)">
+              <button
+                tuiButton
+                appearance="flat"
+                size="s"
+                type="button"
+                (click)="openEditDialog($event, board)"
+              >
                 {{ 'boards.edit.action' | transloco }}
               </button>
             }
             @if (board.capabilities.canDeleteBoard) {
               <button
+                tuiButton
+                appearance="flat-destructive"
+                size="s"
                 class="board-card__delete"
                 type="button"
                 (click)="openDeleteDialog($event, board)"

@@ -1,17 +1,16 @@
-<label class="switcher">
-  <span class="switcher__label">{{ 'workspaces.switcher.label' | transloco }}</span>
+<tui-textfield
+  tuiTextfieldSize="m"
+  class="switcher"
+  [stringify]="stringifyWorkspace"
+  [tuiTextfieldCleaner]="false"
+>
+  <label tuiLabel class="switcher__label">{{ 'workspaces.switcher.label' | transloco }}</label>
   <select
-    [value]="activeId() ?? ''"
+    tuiSelect
+    [items]="workspaceIds()"
+    [ngModel]="activeId()"
+    [ngModelOptions]="{ standalone: true }"
     [attr.aria-label]="'workspaces.switcher.label' | transloco"
-    (change)="selectWorkspace($event)"
-  >
-    @for (workspace of workspaces(); track workspace.id) {
-      <option [value]="workspace.id">
-        {{ workspace.name }}
-        @if (workspace.isPersonal) {
-          ({{ 'workspaces.personal' | transloco }})
-        }
-      </option>
-    }
-  </select>
-</label>
+    (ngModelChange)="selectWorkspaceId($event)"
+  ></select>
+</tui-textfield>

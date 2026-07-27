@@ -27,57 +27,51 @@
 
   <form [formGroup]="form" (ngSubmit)="submit()">
     <fieldset [disabled]="!data.canEdit || busy()">
-      <label class="field field--wide">
-        <span>{{ 'kanban.task.fields.title' | transloco }}</span>
-        <input type="text" formControlName="title" maxlength="500" autofocus />
-        @if (form.controls.title.touched && form.controls.title.invalid) {
-          <small>{{ 'kanban.task.validation.title' | transloco }}</small>
-        }
-      </label>
+      <tui-textfield class="field field--wide">
+        <label tuiLabel>{{ 'kanban.task.fields.title' | transloco }}</label>
+        <input tuiInput type="text" formControlName="title" maxlength="500" autofocus />
+      </tui-textfield>
+      @if (form.controls.title.touched && form.controls.title.invalid) {
+        <small class="field--wide">{{ 'kanban.task.validation.title' | transloco }}</small>
+      }
 
-      <label class="field field--wide">
-        <span>{{ 'kanban.task.fields.description' | transloco }}</span>
-        <textarea formControlName="description" rows="5"></textarea>
-      </label>
+      <tui-textfield class="field field--wide">
+        <label tuiLabel>{{ 'kanban.task.fields.description' | transloco }}</label>
+        <textarea tuiTextarea formControlName="description" rows="5"></textarea>
+      </tui-textfield>
 
-      <label class="field">
-        <span>{{ 'kanban.task.fields.priority' | transloco }}</span>
-        <select formControlName="priority">
-          <option value="low">{{ 'kanban.priority.low' | transloco }}</option>
-          <option value="medium">{{ 'kanban.priority.medium' | transloco }}</option>
-          <option value="high">{{ 'kanban.priority.high' | transloco }}</option>
-          <option value="urgent">{{ 'kanban.priority.urgent' | transloco }}</option>
-        </select>
-      </label>
+      <tui-textfield class="field" [stringify]="stringifyPriority" [tuiTextfieldCleaner]="false">
+        <label tuiLabel>{{ 'kanban.task.fields.priority' | transloco }}</label>
+        <select tuiSelect formControlName="priority" [items]="priorities"></select>
+      </tui-textfield>
 
-      <label class="field">
-        <span>{{ 'kanban.task.fields.dueDate' | transloco }}</span>
-        <input type="date" formControlName="dueDate" />
-      </label>
+      <tui-textfield class="field">
+        <label tuiLabel>{{ 'kanban.task.fields.dueDate' | transloco }}</label>
+        <input tuiInput type="date" formControlName="dueDate" />
+      </tui-textfield>
 
-      <label class="field field--wide">
-        <span>{{ 'kanban.task.fields.labels' | transloco }}</span>
+      <tui-textfield class="field field--wide">
+        <label tuiLabel>{{ 'kanban.task.fields.labels' | transloco }}</label>
         <input
+          tuiInput
           type="text"
           formControlName="labels"
           [placeholder]="'kanban.task.fields.labelsHint' | transloco"
         />
-      </label>
+      </tui-textfield>
 
-      <label class="field">
-        <span>{{ 'kanban.task.fields.assignee' | transloco }}</span>
-        <select formControlName="assigneeId">
-          <option value="" [disabled]="!!data.task?.assigneeId">
-            {{ 'kanban.task.fields.noAssignee' | transloco }}
-          </option>
-          @for (member of members; track member.userId) {
-            <option [value]="member.userId">{{ member.user.name }}</option>
-          }
-        </select>
-      </label>
+      <tui-textfield class="field" [stringify]="stringifyAssignee">
+        <label tuiLabel>{{ 'kanban.task.fields.assignee' | transloco }}</label>
+        <select
+          tuiSelect
+          formControlName="assigneeId"
+          [items]="assigneeIds"
+          [placeholder]="'kanban.task.fields.noAssignee' | transloco"
+        ></select>
+      </tui-textfield>
 
       <label class="checkbox-field">
-        <input type="checkbox" formControlName="isCompleted" />
+        <input tuiCheckbox type="checkbox" formControlName="isCompleted" />
         <span>{{ 'kanban.task.fields.completed' | transloco }}</span>
       </label>
     </fieldset>

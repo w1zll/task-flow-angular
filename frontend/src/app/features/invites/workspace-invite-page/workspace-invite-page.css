@@ -18,6 +18,7 @@
 
 .invite-card h1 {
   @apply mt-2 text-2xl font-bold tracking-tight sm:text-3xl;
+  overflow-wrap: anywhere;
 }
 
 .invite-card__description {
@@ -37,7 +38,8 @@
 }
 
 .invite-card dd {
-  @apply m-0 text-sm font-semibold;
+  @apply m-0 break-words text-sm font-semibold;
+  overflow-wrap: anywhere;
 }
 
 .invite-card__error {

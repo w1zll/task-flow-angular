@@ -1,7 +1,8 @@
 <form class="auth-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
-  <label class="field" for="register-name">
-    <span>{{ 'auth.fields.name' | transloco }}</span>
+  <tui-textfield class="field">
+    <label tuiLabel for="register-name">{{ 'auth.fields.name' | transloco }}</label>
     <input
+      tuiInput
       id="register-name"
       type="text"
       formControlName="name"
@@ -9,7 +10,7 @@
       [attr.aria-invalid]="form.controls.name.touched && form.controls.name.invalid"
       aria-describedby="register-name-error"
     />
-  </label>
+  </tui-textfield>
   <div id="register-name-error" class="field-error" aria-live="polite">
     @if (showError('name', 'required')) {
       {{ 'auth.validation.required' | transloco }}
@@ -20,9 +21,10 @@
     }
   </div>
 
-  <label class="field" for="register-email">
-    <span>{{ 'auth.fields.email' | transloco }}</span>
+  <tui-textfield class="field">
+    <label tuiLabel for="register-email">{{ 'auth.fields.email' | transloco }}</label>
     <input
+      tuiInput
       id="register-email"
       type="email"
       formControlName="email"
@@ -31,7 +33,7 @@
       [attr.aria-invalid]="form.controls.email.touched && form.controls.email.invalid"
       aria-describedby="register-email-error"
     />
-  </label>
+  </tui-textfield>
   <div id="register-email-error" class="field-error" aria-live="polite">
     @if (showError('email', 'required')) {
       {{ 'auth.validation.required' | transloco }}
@@ -40,9 +42,10 @@
     }
   </div>
 
-  <label class="field" for="register-password">
-    <span>{{ 'auth.fields.password' | transloco }}</span>
+  <tui-textfield class="field">
+    <label tuiLabel for="register-password">{{ 'auth.fields.password' | transloco }}</label>
     <input
+      tuiInput
       id="register-password"
       type="password"
       formControlName="password"
@@ -50,7 +53,7 @@
       [attr.aria-invalid]="form.controls.password.touched && form.controls.password.invalid"
       aria-describedby="register-password-error"
     />
-  </label>
+  </tui-textfield>
   <div id="register-password-error" class="field-error" aria-live="polite">
     @if (showError('password', 'required')) {
       {{ 'auth.validation.required' | transloco }}
@@ -68,6 +71,7 @@
   <app-button
     class="full-width"
     type="submit"
+    size="m"
     [loading]="auth.status() === 'loading'"
     [disabled]="auth.status() === 'loading'"
   >

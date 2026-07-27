@@ -8,10 +8,13 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { Dialog } from '@angular/cdk/dialog';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { TuiDialogService, TuiInput } from '@taiga-ui/core';
+import { TuiSelect } from '@taiga-ui/kit';
+import { TuiCardLarge } from '@taiga-ui/layout';
+import { PolymorpheusComponent } from '@taiga-ui/polymorpheus';
 import { firstValueFrom } from 'rxjs';
 
 import { ApiError } from '@core/api/api-error';
@@ -38,7 +41,17 @@ type MemberRole = 'admin' | 'member';
 
 @Component({
   selector: 'app-workspace-settings-page',
-  imports: [AppButton, LoadingSkeleton, LocalizedDatePipe, ReactiveFormsModule, TranslocoPipe],
+  imports: [
+    AppButton,
+    FormsModule,
+    LoadingSkeleton,
+    LocalizedDatePipe,
+    ReactiveFormsModule,
+    TranslocoPipe,
+    TuiCardLarge,
+    TuiInput,
+    TuiSelect,
+  ],
   templateUrl: './workspace-settings-page.html',
   styleUrl: './workspace-settings-page.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -46,8 +59,9 @@ type MemberRole = 'admin' | 'member';
 export class WorkspaceSettingsPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly dialog = inject(Dialog);
+  private readonly dialog = inject(TuiDialogService);
   private readonly formBuilder = inject(FormBuilder);
+  private readonly transloco = inject(TranslocoService);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly workspacesApi = inject(WorkspacesApi);
   private readonly invitesApi = inject(WorkspaceInvitesApi);
@@ -59,6 +73,12 @@ export class WorkspaceSettingsPage implements OnInit {
   protected readonly workspace = computed(() =>
     this.workspaceStore.workspaces().find((item) => item.id === this.workspaceId),
   );
+  protected readonly inviteRoles = computed<readonly MemberRole[]>(() =>
+    this.workspace()?.currentUserRole === 'owner' ? ['member', 'admin'] : ['member'],
+  );
+  protected readonly memberRoles: readonly MemberRole[] = ['admin', 'member'];
+  protected readonly stringifyRole = (role: MemberRole): string =>
+    this.transloco.translate(`workspaces.roles.${role}`);
   private readonly membersQuery = this.cache.entry<readonly WorkspaceMemberResponseDto[]>(
     queryKeys.workspaceMembers(this.workspaceId),
   );
@@ -114,6 +134,17 @@ export class WorkspaceSettingsPage implements OnInit {
 
   protected async changeRole(member: WorkspaceMemberResponseDto, event: Event): Promise<void> {
     const role = (event.target as HTMLSelectElement).value as MemberRole;
+    await this.updateMemberRole(member, role);
+  }
+
+  protected changeRoleValue(member: WorkspaceMemberResponseDto, role: MemberRole): void {
+    void this.updateMemberRole(member, role);
+  }
+
+  private async updateMemberRole(
+    member: WorkspaceMemberResponseDto,
+    role: MemberRole,
+  ): Promise<void> {
     if (role === member.role || !this.canChangeRole(member)) return;
 
     this.busyId.set(member.id);
@@ -241,10 +272,16 @@ export class WorkspaceSettingsPage implements OnInit {
 
   protected async openDeleteDialog(workspace: WorkspaceResponseDto): Promise<void> {
     const result = await firstValueFrom(
-      this.dialog.open<WorkspaceDeleteResult, WorkspaceResponseDto>(WorkspaceDeleteDialog, {
-        ariaLabelledBy: 'workspace-delete-title',
-        data: workspace,
-      }).closed,
+      this.dialog.open<WorkspaceDeleteResult | undefined>(
+        new PolymorpheusComponent(WorkspaceDeleteDialog),
+        {
+          closable: false,
+          data: workspace,
+          label: this.transloco.translate('workspaces.delete.title'),
+          size: 's',
+        },
+      ),
+      { defaultValue: undefined },
     );
     if (!result) return;
 

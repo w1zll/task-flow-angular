@@ -3,6 +3,7 @@ import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/
 import { provideClientHydration, withHttpTransferCacheOptions } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
 import { provideTransloco } from '@jsverse/transloco';
+import { provideTaiga } from '@taiga-ui/core';
 
 import { TranslocoHttpLoader } from '@core/i18n/transloco-loader';
 import { apiErrorInterceptor } from '@core/api/interceptors/api-error-interceptor';
@@ -20,6 +21,9 @@ const isApiRequest = (url: string): boolean => {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
+    provideTaiga({
+      scrollbars: 'native',
+    }),
     provideRouter(routes),
     provideHttpClient(
       withFetch(),

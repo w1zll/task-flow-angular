@@ -1,7 +1,9 @@
-import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { TuiDialogContext, TuiInput, TuiRadio, TuiTextfield } from '@taiga-ui/core';
+import { TuiTextarea } from '@taiga-ui/kit';
+import { POLYMORPHEUS_CONTEXT } from '@taiga-ui/polymorpheus';
 
 import { BoardResponseDto } from '@core/api/generated';
 import { BoardCatalogStore } from '@features/boards/board-catalog.store';
@@ -13,14 +15,25 @@ export type BoardUpsertDialogData =
 
 @Component({
   selector: 'app-board-upsert-dialog',
-  imports: [AppButton, ReactiveFormsModule, TranslocoPipe],
+  imports: [
+    AppButton,
+    ReactiveFormsModule,
+    TranslocoPipe,
+    TuiInput,
+    TuiRadio,
+    TuiTextarea,
+    TuiTextfield,
+  ],
   templateUrl: './board-upsert-dialog.html',
   styleUrl: './board-upsert-dialog.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class BoardUpsertDialog {
-  protected readonly data = inject<BoardUpsertDialogData>(DIALOG_DATA);
-  private readonly dialogRef = inject(DialogRef<BoardResponseDto>);
+  private readonly dialog =
+    inject<TuiDialogContext<BoardResponseDto | undefined, BoardUpsertDialogData>>(
+      POLYMORPHEUS_CONTEXT,
+    );
+  protected readonly data = this.dialog.data;
   private readonly formBuilder = inject(FormBuilder);
   protected readonly store = inject(BoardCatalogStore);
 
@@ -70,11 +83,11 @@ export class BoardUpsertDialog {
               description: value.description.trim(),
               color: value.color,
             });
-      this.dialogRef.close(board);
+      this.dialog.completeWith(board);
     } catch {}
   }
 
   protected close(): void {
-    this.dialogRef.close();
+    this.dialog.completeWith(undefined);
   }
 }

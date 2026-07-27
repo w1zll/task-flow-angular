@@ -25,24 +25,23 @@
   } @else {
     @if (canManage) {
       <form class="add-member" [formGroup]="addForm" (ngSubmit)="addMember()">
-        <label>
-          <span>{{ 'boardMembers.add.person' | transloco }}</span>
-          <select formControlName="userId">
-            <option value="" disabled>{{ 'boardMembers.add.selectPerson' | transloco }}</option>
-            @for (candidate of candidates(); track candidate.userId) {
-              <option [value]="candidate.userId">
-                {{ candidate.user.name }} · {{ candidate.user.email }}
-              </option>
-            }
-          </select>
-        </label>
-        <label>
-          <span>{{ 'boardMembers.add.role' | transloco }}</span>
-          <select formControlName="role">
-            <option value="editor">{{ 'workspaces.roles.editor' | transloco }}</option>
-            <option value="viewer">{{ 'workspaces.roles.viewer' | transloco }}</option>
-          </select>
-        </label>
+        <tui-textfield tuiTextfieldSize="m" [stringify]="stringifyCandidate">
+          <label tuiLabel>{{ 'boardMembers.add.person' | transloco }}</label>
+          <select
+            tuiSelect
+            formControlName="userId"
+            [items]="candidateIds()"
+            [placeholder]="'boardMembers.add.selectPerson' | transloco"
+          ></select>
+        </tui-textfield>
+        <tui-textfield
+          tuiTextfieldSize="m"
+          [stringify]="stringifyRole"
+          [tuiTextfieldCleaner]="false"
+        >
+          <label tuiLabel>{{ 'boardMembers.add.role' | transloco }}</label>
+          <select tuiSelect formControlName="role" [items]="roles"></select>
+        </tui-textfield>
         <app-button
           type="submit"
           [loading]="store.busyId() === 'add'"
@@ -85,18 +84,24 @@
           </div>
           <div class="member-row__role">
             @if (canManage) {
-              <label class="sr-only" [for]="'board-role-' + member.id">
-                {{ 'boardMembers.roleLabel' | transloco }}
-              </label>
-              <select
-                [id]="'board-role-' + member.id"
-                [value]="member.role"
-                [disabled]="store.busyId() === member.id"
-                (change)="changeRole(member, $event)"
+              <tui-textfield
+                tuiTextfieldSize="s"
+                [stringify]="stringifyRole"
+                [tuiTextfieldCleaner]="false"
               >
-                <option value="editor">{{ 'workspaces.roles.editor' | transloco }}</option>
-                <option value="viewer">{{ 'workspaces.roles.viewer' | transloco }}</option>
-              </select>
+                <label tuiLabel class="sr-only" [for]="'board-role-' + member.id">
+                  {{ 'boardMembers.roleLabel' | transloco }}
+                </label>
+                <select
+                  tuiSelect
+                  [id]="'board-role-' + member.id"
+                  [items]="roles"
+                  [ngModel]="member.role"
+                  [ngModelOptions]="{ standalone: true }"
+                  [disabled]="store.busyId() === member.id"
+                  (ngModelChange)="changeRoleValue(member, $event)"
+                ></select>
+              </tui-textfield>
             } @else {
               <span class="role-badge">
                 {{ 'workspaces.roles.' + member.role | transloco }}

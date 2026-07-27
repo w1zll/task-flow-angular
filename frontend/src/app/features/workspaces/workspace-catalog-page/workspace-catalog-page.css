@@ -34,7 +34,11 @@
 }
 
 .workspace-card__open {
-  @apply flex w-full cursor-pointer items-start gap-3 border-0 bg-transparent p-5 text-left text-foreground transition-colors hover:bg-surface-muted;
+  @apply grid min-h-full w-full cursor-pointer gap-0 rounded-xl border-0 bg-transparent text-left text-foreground transition-colors hover:bg-surface-muted;
+}
+
+.workspace-card__summary {
+  @apply flex items-start gap-3 p-5;
 }
 
 .workspace-card__mark {
@@ -50,7 +54,8 @@
 }
 
 .workspace-card__title-row strong {
-  @apply min-w-0 truncate text-lg;
+  @apply min-w-0 break-words text-lg;
+  overflow-wrap: anywhere;
 }
 
 .badge {
@@ -66,7 +71,7 @@
 }
 
 .workspace-card__boards {
-  @apply border-t border-border py-4 pl-5 pr-24 text-sm text-muted;
+  @apply block border-t border-border py-4 pl-5 pr-24 text-sm text-muted;
 }
 
 .board-names {
@@ -74,7 +79,8 @@
 }
 
 .board-names span {
-  @apply rounded-md bg-surface-muted px-2 py-1 text-xs;
+  @apply max-w-full break-words rounded-md bg-surface-muted px-2 py-1 text-xs;
+  overflow-wrap: anywhere;
 }
 
 .workspace-card__delete {
@@ -84,5 +90,9 @@
 @media (max-width: 639px) {
   .catalog__header {
     @apply flex-col;
+  }
+
+  .catalog__header app-button {
+    @apply w-full;
   }
 }

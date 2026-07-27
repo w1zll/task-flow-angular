@@ -49,16 +49,26 @@
           {{ 'kanban.task.down' | transloco }}
         </app-button>
       }
-      <label>
-        <span>{{ 'kanban.task.moveTo' | transloco }}</span>
-        <select [value]="task().columnId" [disabled]="busy()" (change)="selectColumn($event)">
-          @for (column of columns(); track column.id) {
-            <option [value]="column.id" [selected]="column.id === task().columnId">
-              {{ column.title }}
-            </option>
-          }
-        </select>
-      </label>
+      <div class="task-card__move">
+        <label class="task-card__move-label" [for]="'task-column-' + task().id">
+          {{ 'kanban.task.moveTo' | transloco }}
+        </label>
+        <tui-textfield
+          tuiTextfieldSize="m"
+          [stringify]="stringifyColumn"
+          [tuiTextfieldCleaner]="false"
+        >
+          <select
+            tuiSelect
+            [id]="'task-column-' + task().id"
+            [items]="columnIds()"
+            [ngModel]="task().columnId"
+            [ngModelOptions]="{ standalone: true }"
+            [disabled]="busy()"
+            (ngModelChange)="selectColumnId($event)"
+          ></select>
+        </tui-textfield>
+      </div>
       <app-button variant="danger" [disabled]="busy()" (pressed)="remove.emit()">
         {{ 'kanban.task.delete.action' | transloco }}
       </app-button>

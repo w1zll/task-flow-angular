@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { TuiDialogContext } from '@taiga-ui/core';
+import { POLYMORPHEUS_CONTEXT } from '@taiga-ui/polymorpheus';
 
 import { WorkspaceResponseDto } from '@core/api/generated';
 import { AppButton } from '@shared/ui/app-button/app-button';
@@ -19,8 +20,11 @@ export interface WorkspaceDeleteResult {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkspaceDeleteDialog {
-  protected readonly workspace = inject<WorkspaceResponseDto>(DIALOG_DATA);
-  private readonly dialogRef = inject(DialogRef<WorkspaceDeleteResult>);
+  private readonly dialog =
+    inject<TuiDialogContext<WorkspaceDeleteResult | undefined, WorkspaceResponseDto>>(
+      POLYMORPHEUS_CONTEXT,
+    );
+  protected readonly workspace = this.dialog.data;
   protected readonly store = inject(WorkspaceStore);
 
   protected async confirm(): Promise<void> {
@@ -28,7 +32,7 @@ export class WorkspaceDeleteDialog {
 
     try {
       const fallbackId = await this.store.remove(this.workspace.id);
-      this.dialogRef.close({
+      this.dialog.completeWith({
         deletedId: this.workspace.id,
         fallbackId,
       });
@@ -36,6 +40,6 @@ export class WorkspaceDeleteDialog {
   }
 
   protected close(): void {
-    this.dialogRef.close();
+    this.dialog.completeWith(undefined);
   }
 }

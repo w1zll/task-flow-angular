@@ -21,7 +21,7 @@
 }
 
 .dialog__header > button {
-  @apply grid size-10 shrink-0 cursor-pointer place-items-center rounded-control border-0 bg-transparent text-2xl text-muted hover:bg-surface-muted;
+  @apply grid size-11 shrink-0 cursor-pointer place-items-center rounded-control border-0 bg-transparent text-2xl text-muted hover:bg-surface-muted;
 }
 
 .add-member {
@@ -36,8 +36,8 @@
   @apply text-xs font-bold text-muted;
 }
 
-.add-member select,
-.member-row select {
+.add-member select:not([tuiSelect]),
+.member-row select:not([tuiSelect]) {
   @apply min-h-11 min-w-0 rounded-control border border-border bg-surface px-3 text-sm text-foreground;
 }
 
@@ -79,7 +79,8 @@
 
 .member-row__identity strong,
 .member-row__identity span {
-  @apply block truncate;
+  @apply block break-words;
+  overflow-wrap: anywhere;
 }
 
 .member-row__identity span {

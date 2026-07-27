@@ -4,6 +4,10 @@
   @apply flex min-h-dvh flex-col bg-canvas text-foreground;
 }
 
+tui-root {
+  @apply flex min-h-dvh flex-1 flex-col;
+}
+
 .skip-link {
   @apply fixed left-4 top-3 z-50 -translate-y-20 rounded-control bg-primary px-4 py-3 font-semibold text-white shadow-card transition-transform;
 }

@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
-import { DialogRef } from '@angular/cdk/dialog';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { TuiDialogContext, TuiInput } from '@taiga-ui/core';
+import { POLYMORPHEUS_CONTEXT } from '@taiga-ui/polymorpheus';
 
 import { WorkspaceResponseDto } from '@core/api/generated';
 import { AppButton } from '@shared/ui/app-button/app-button';
@@ -9,13 +10,14 @@ import { WorkspaceStore } from '@features/workspaces/workspace.store';
 
 @Component({
   selector: 'app-workspace-create-dialog',
-  imports: [AppButton, ReactiveFormsModule, TranslocoPipe],
+  imports: [AppButton, ReactiveFormsModule, TranslocoPipe, TuiInput],
   templateUrl: './workspace-create-dialog.html',
   styleUrl: './workspace-create-dialog.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkspaceCreateDialog {
-  private readonly dialogRef = inject(DialogRef<WorkspaceResponseDto>);
+  private readonly dialog =
+    inject<TuiDialogContext<WorkspaceResponseDto | undefined>>(POLYMORPHEUS_CONTEXT);
   private readonly formBuilder = inject(FormBuilder);
   protected readonly store = inject(WorkspaceStore);
 
@@ -34,11 +36,11 @@ export class WorkspaceCreateDialog {
 
     try {
       const workspace = await this.store.create(this.form.controls.name.value);
-      this.dialogRef.close(workspace);
+      this.dialog.completeWith(workspace);
     } catch {}
   }
 
   protected close(): void {
-    this.dialogRef.close();
+    this.dialog.completeWith(undefined);
   }
 }

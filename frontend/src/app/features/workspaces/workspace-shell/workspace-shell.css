@@ -66,7 +66,7 @@
 }
 
 .sidebar__boards > a {
-  @apply flex min-h-10 items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground no-underline hover:bg-surface-muted;
+  @apply flex min-h-11 items-center gap-2 rounded-md px-3 py-2 text-sm text-foreground no-underline hover:bg-surface-muted;
 }
 
 .sidebar__boards > a > span:last-child {
@@ -127,5 +127,11 @@
 
   .shell__main {
     @apply px-4 py-6;
+  }
+}
+
+@media (max-width: 359px) {
+  .shell__main {
+    @apply px-3;
   }
 }

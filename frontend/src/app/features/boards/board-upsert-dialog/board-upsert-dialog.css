@@ -20,12 +20,12 @@
   @apply mt-5 grid gap-4;
 }
 
-.field {
+.field:not(tui-textfield) {
   @apply grid gap-2 text-sm font-semibold;
 }
 
-.field input[type='text'],
-.field textarea {
+.field input[type='text']:not([tuiInput]),
+.field textarea:not([tuiTextarea]) {
   @apply min-h-11 w-full resize-y rounded-control border border-border bg-canvas px-3 py-2 text-base font-normal text-foreground;
 }
 

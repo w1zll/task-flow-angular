@@ -1,12 +1,10 @@
-<section class="state">
-  <div class="state__icon" aria-hidden="true">
+<tui-block-status class="state" size="l">
+  <div tuiSlot="top" class="state__icon" aria-hidden="true">
     <ng-content select="[empty-state-icon]" />
   </div>
   <h2 class="state__title">{{ title() }}</h2>
   @if (description()) {
     <p class="state__description">{{ description() }}</p>
   }
-  <div class="state__actions">
-    <ng-content />
-  </div>
-</section>
+  <ng-content />
+</tui-block-status>

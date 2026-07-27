@@ -42,7 +42,7 @@
         type="button"
         [style.top.px]="drawerTop()"
         [attr.aria-label]="'actions.close' | transloco"
-        (click)="closeDrawer()"
+        (click)="closeDrawer(true)"
       ></button>
     }
 
@@ -51,6 +51,7 @@
       class="sidebar"
       [class.sidebar--open]="drawerOpen()"
       [style.top.px]="drawerTop()"
+      [attr.aria-label]="'workspaces.navigation.label' | transloco"
     >
       <div class="sidebar__heading">
         <a class="sidebar__catalog-link" routerLink="/workspaces" (click)="closeDrawer()">
@@ -100,6 +101,7 @@
             <span
               class="sidebar__board-color"
               [style.background-color]="board.color || 'var(--tf-primary)'"
+              aria-hidden="true"
             ></span>
             <span>{{ board.title }}</span>
           </a>
