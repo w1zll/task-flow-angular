@@ -6,6 +6,8 @@
 /out-tsc
 /bazel-out
 
+frontend-react
+
 # Node
 /node_modules
 npm-debug.log
